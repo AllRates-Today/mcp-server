@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "allratestoday": {
+      "command": "npx",
+      "args": ["-y", "@allratestoday/mcp-server"],
+      "env": {
+        "ALLRATES_API_KEY": ""
+      }
+    }
+  }
+}
