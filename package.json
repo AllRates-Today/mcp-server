@@ -1,6 +1,7 @@
 {
   "name": "@allratestoday/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "mcpName": "io.github.cahthuranag/mcp-server",
   "description": "MCP server for AllRatesToday — let AI coding tools (Claude Code, Cursor, Claude Desktop) fetch real-time and historical currency exchange rates.",
   "keywords": [
     "mcp",
