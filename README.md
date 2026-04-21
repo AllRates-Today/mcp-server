@@ -82,12 +82,11 @@ The free plan includes 300 requests/month. Paid plans start at €4.99/mo.
 | Tool | API key | Description |
 |---|---|---|
 | `get_exchange_rate` | no | Current mid-market rate between two currencies. |
-| `get_historical_rates` | no | Historical data points over `1d`, `7d`, `30d`, or `1y`. |
+| `get_historical_rates` | yes | Historical data points over `1d`, `7d`, `30d`, or `1y`. |
 | `get_rates_authenticated` | yes | Multi-target rates and higher limits. |
 | `list_currencies` | no | All supported currencies with codes, names, symbols. |
-| `get_financial_news` | no | Latest financial news from major sources. |
 
-Public endpoints work without a key — set `ALLRATES_API_KEY` only if you want higher limits or to use the authenticated endpoint.
+Public tools (`get_exchange_rate`, `list_currencies`) work without a key. Set `ALLRATES_API_KEY` for the historical and multi-target endpoints.
 
 ## Environment variables
 

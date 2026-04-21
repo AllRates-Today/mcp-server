@@ -32,7 +32,7 @@ const tools = [
   {
     name: 'get_historical_rates',
     description:
-      'Get historical exchange-rate data points for a currency pair over a period. Periods: 1d (hourly), 7d (daily), 30d (daily), 1y (weekly). No API key required.',
+      'Get historical exchange-rate data points for a currency pair over a period. Periods: 1d (hourly), 7d (daily), 30d (daily), 1y (weekly). Requires an AllRatesToday API key (ALLRATES_API_KEY).',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -82,12 +82,6 @@ const tools = [
       'List all supported currencies with code, name, and symbol. No API key required. Cached 24h upstream.',
     inputSchema: { type: 'object', additionalProperties: false, properties: {} },
   },
-  {
-    name: 'get_financial_news',
-    description:
-      'Get the latest financial and currency-market news from Bloomberg, Investing.com, and Google News. No API key required.',
-    inputSchema: { type: 'object', additionalProperties: false, properties: {} },
-  },
 ] as const;
 
 function text(s: unknown) {
@@ -102,7 +96,7 @@ async function main() {
   });
 
   const server = new Server(
-    { name: 'allratestoday-mcp', version: '0.1.0' },
+    { name: 'allratestoday-mcp', version: '0.2.0' },
     { capabilities: { tools: {} } },
   );
 
@@ -127,9 +121,6 @@ async function main() {
         }
         case 'list_currencies': {
           return text(await client.listSymbols());
-        }
-        case 'get_financial_news': {
-          return text(await client.getNews());
         }
         default:
           return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };

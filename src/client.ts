@@ -1,5 +1,5 @@
 const DEFAULT_BASE_URL = 'https://allratestoday.com/api';
-const USER_AGENT = `allratestoday-mcp/0.1.0`;
+const USER_AGENT = `allratestoday-mcp/0.2.0`;
 
 export interface ClientOptions {
   apiKey?: string;
@@ -81,7 +81,7 @@ export class AllRatesTodayClient {
       period: string;
       source_api?: string;
       data: { date: string; rate: number; timestamp: number }[];
-    }>('/historical-rates', { source, target, period });
+    }>('/historical-rates', { source, target, period }, true);
   }
 
   getAuthenticatedRates(params: {
@@ -100,20 +100,5 @@ export class AllRatesTodayClient {
       currencies: { code: string; name: string; symbol: string }[];
       count: number;
     }>('/v1/symbols', {});
-  }
-
-  getNews() {
-    return this.request<{
-      status: string;
-      totalResults: number;
-      articles: {
-        title: string;
-        description?: string;
-        url: string;
-        image?: string;
-        publishedAt?: string;
-        source?: string;
-      }[];
-    }>('/news', {});
   }
 }
