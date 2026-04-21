@@ -99,7 +99,7 @@ Public endpoints work without a key — set `ALLRATES_API_KEY` only if you want 
 ## Development
 
 ```bash
-git clone https://github.com/allratestoday/mcp-server.git
+git clone https://github.com/cahthuranag/mcp-server.git
 cd mcp-server
 npm install
 npm run build

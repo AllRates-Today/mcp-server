@@ -16,9 +16,9 @@
   "homepage": "https://allratestoday.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/allratestoday/mcp-server.git"
+    "url": "git+https://github.com/cahthuranag/mcp-server.git"
   },
-  "bugs": "https://github.com/allratestoday/mcp-server/issues",
+  "bugs": "https://github.com/cahthuranag/mcp-server/issues",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
