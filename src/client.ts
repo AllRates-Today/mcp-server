@@ -1,5 +1,5 @@
 const DEFAULT_BASE_URL = 'https://allratestoday.com/api';
-const USER_AGENT = `allratestoday-mcp/0.3.0`;
+const USER_AGENT = `allratestoday-mcp/0.3.1`;
 
 export interface ClientOptions {
   apiKey?: string;

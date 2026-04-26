@@ -118,7 +118,7 @@ async function main() {
   });
 
   const server = new Server(
-    { name: 'allratestoday-mcp', version: '0.3.0' },
+    { name: 'allratestoday-mcp', version: '0.3.1' },
     { capabilities: { tools: {} } },
   );
 
