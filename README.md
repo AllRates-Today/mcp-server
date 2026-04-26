@@ -2,7 +2,7 @@
 
 English | [简体中文](./README-zh-CN.md)
 
-MCP server that gives AI coding tools — **Claude Code**, **Cursor**, **Claude Desktop**, and any other Model Context Protocol client — real-time currency exchange rates, historical data, and financial news from [AllRatesToday](https://allratestoday.com).
+MCP server that gives AI coding tools — **Claude Code**, **Cursor**, **Claude Desktop**, and any other Model Context Protocol client — real-time currency exchange rates, historical data, and multi-currency lookups from [AllRatesToday](https://allratestoday.com).
 
 Ask your assistant things like:
 
