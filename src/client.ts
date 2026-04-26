@@ -1,5 +1,5 @@
 const DEFAULT_BASE_URL = 'https://allratestoday.com/api';
-const USER_AGENT = `allratestoday-mcp/0.2.0`;
+const USER_AGENT = `allratestoday-mcp/0.3.0`;
 
 export interface ClientOptions {
   apiKey?: string;
@@ -29,7 +29,7 @@ export class AllRatesTodayClient {
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
-  private async request<T>(path: string, query: Record<string, string | undefined>, requireAuth = false): Promise<T> {
+  private async request<T>(path: string, query: Record<string, string | undefined>): Promise<T> {
     const url = new URL(this.baseUrl + path);
     for (const [key, value] of Object.entries(query)) {
       if (value !== undefined && value !== '') url.searchParams.set(key, value);
@@ -39,16 +39,12 @@ export class AllRatesTodayClient {
       'Accept': 'application/json',
       'User-Agent': USER_AGENT,
     };
-    if (requireAuth) {
-      if (!this.apiKey) {
-        throw new AllRatesTodayError(
-          'This endpoint requires an API key. Set ALLRATES_API_KEY or pass apiKey in the MCP config.',
-        );
-      }
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    } else if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    if (!this.apiKey) {
+      throw new AllRatesTodayError(
+        'AllRatesToday API key is required. Sign up free at https://allratestoday.com/register to get a key, then set ALLRATES_API_KEY in your MCP config.',
+      );
     }
+    headers['Authorization'] = `Bearer ${this.apiKey}`;
 
     const res = await this.fetchImpl(url.toString(), { method: 'GET', headers });
     const text = await res.text();
@@ -81,7 +77,7 @@ export class AllRatesTodayClient {
       period: string;
       source_api?: string;
       data: { date: string; rate: number; timestamp: number }[];
-    }>('/historical-rates', { source, target, period }, true);
+    }>('/historical-rates', { source, target, period });
   }
 
   getAuthenticatedRates(params: {
@@ -92,7 +88,7 @@ export class AllRatesTodayClient {
   }) {
     return this.request<
       Array<{ rate: number; source: string; target: string; time: string }>
-    >('/v1/rates', params, true);
+    >('/v1/rates', params);
   }
 
   listSymbols() {

@@ -5,3 +5,6 @@ dist
 .env.local
 .DS_Store
 mcp-publisher
+
+# Internal / marketing drafts — not for public repo
+CURSOR-DIRECTORY-UPDATE.md

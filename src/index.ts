@@ -18,7 +18,7 @@ const tools = [
   {
     name: 'get_exchange_rate',
     description:
-      'Get the current mid-market exchange rate between two currencies. Returns a single rate number. No API key required.',
+      'Get the current mid-market exchange rate between two currencies. Returns a single rate number. Requires a free AllRatesToday API key (ALLRATES_API_KEY) — sign up at https://allratestoday.com/register.',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -79,7 +79,7 @@ const tools = [
   {
     name: 'list_currencies',
     description:
-      'List all supported currencies with code, name, and symbol. No API key required. Cached 24h upstream.',
+      'List all supported currencies with code, name, and symbol. Requires a free AllRatesToday API key (ALLRATES_API_KEY) — sign up at https://allratestoday.com/register. Cached 24h upstream.',
     inputSchema: { type: 'object', additionalProperties: false, properties: {} },
   },
 ] as const;
@@ -90,13 +90,35 @@ function text(s: unknown) {
 }
 
 async function main() {
+  const apiKey = process.env.ALLRATES_API_KEY;
+  if (!apiKey) {
+    console.error(
+      [
+        '',
+        '  AllRatesToday MCP server requires an API key.',
+        '',
+        '  1. Sign up free at https://allratestoday.com/register (300 requests/month, no card required)',
+        '  2. Copy your API key from the dashboard',
+        '  3. Set ALLRATES_API_KEY in your MCP client config:',
+        '',
+        '     "allratestoday": {',
+        '       "command": "npx",',
+        '       "args": ["-y", "@allratestoday/mcp-server"],',
+        '       "env": { "ALLRATES_API_KEY": "art_live_..." }',
+        '     }',
+        '',
+      ].join('\n'),
+    );
+    process.exit(1);
+  }
+
   const client = new AllRatesTodayClient({
-    apiKey: process.env.ALLRATES_API_KEY,
+    apiKey,
     baseUrl: process.env.ALLRATES_BASE_URL,
   });
 
   const server = new Server(
-    { name: 'allratestoday-mcp', version: '0.2.0' },
+    { name: 'allratestoday-mcp', version: '0.3.0' },
     { capabilities: { tools: {} } },
   );
 

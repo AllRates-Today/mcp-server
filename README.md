@@ -1,5 +1,7 @@
 # AllRatesToday MCP Server
 
+English | [简体中文](./README-zh-CN.md)
+
 MCP server that gives AI coding tools — **Claude Code**, **Cursor**, **Claude Desktop**, and any other Model Context Protocol client — real-time currency exchange rates, historical data, and financial news from [AllRatesToday](https://allratestoday.com).
 
 Ask your assistant things like:
@@ -8,6 +10,17 @@ Ask your assistant things like:
 - *"Show me the GBP/JPY rate over the last 30 days."*
 - *"Convert 250 USD into CAD using a real rate."*
 - *"List every supported currency."*
+
+## Get an API key first (required)
+
+The MCP server needs an AllRatesToday API key to start. **The free plan is enough** — 300 requests/month, no card required.
+
+1. Register at [allratestoday.com/register](https://allratestoday.com/register) — takes 30 seconds
+2. Verify your email
+3. Copy your key from the dashboard — it looks like `art_live_xxxxx`
+4. Set it as `ALLRATES_API_KEY` in your MCP client config (examples below)
+
+The server will refuse to start without a key and print registration instructions in the console.
 
 ## Install
 
@@ -69,30 +82,26 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 
 Restart the app after editing.
 
-## Get an API key
+## Plans
 
-1. Register at [allratestoday.com/register](https://allratestoday.com/register).
-2. Verify your email.
-3. Copy your key from the dashboard — it looks like `art_live_xxxxx`.
-
-The free plan includes 300 requests/month. Paid plans start at €4.99/mo.
+The free plan includes 300 requests/month. Paid plans start at €4.99/mo for higher limits and historical data going back years. See [allratestoday.com/pricing](https://allratestoday.com/pricing).
 
 ## Tools exposed
 
-| Tool | API key | Description |
-|---|---|---|
-| `get_exchange_rate` | no | Current mid-market rate between two currencies. |
-| `get_historical_rates` | yes | Historical data points over `1d`, `7d`, `30d`, or `1y`. |
-| `get_rates_authenticated` | yes | Multi-target rates and higher limits. |
-| `list_currencies` | no | All supported currencies with codes, names, symbols. |
+All four tools require an `ALLRATES_API_KEY`.
 
-Public tools (`get_exchange_rate`, `list_currencies`) work without a key. Set `ALLRATES_API_KEY` for the historical and multi-target endpoints.
+| Tool | Description |
+|---|---|
+| `get_exchange_rate` | Current mid-market rate between two currencies. |
+| `get_historical_rates` | Historical data points over `1d`, `7d`, `30d`, or `1y`. |
+| `get_rates_authenticated` | Multi-target rates and higher limits. |
+| `list_currencies` | All supported currencies with codes, names, symbols. |
 
 ## Environment variables
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `ALLRATES_API_KEY` | *(unset)* | Your AllRatesToday API key. Required for `get_rates_authenticated`. |
+| `ALLRATES_API_KEY` | *(required)* | Your AllRatesToday API key. Server will not start without it. |
 | `ALLRATES_BASE_URL` | `https://allratestoday.com/api` | Override for self-hosted or staging environments. |
 
 ## Development
