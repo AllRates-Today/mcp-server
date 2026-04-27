@@ -97,7 +97,7 @@ async function main() {
         '',
         '  AllRatesToday MCP server requires an API key.',
         '',
-        '  1. Sign up free at https://allratestoday.com/register (300 requests/month, no card required)',
+        '  1. Sign up free at https://allratestoday.com/register (free tier — no card required)',
         '  2. Copy your API key from the dashboard',
         '  3. Set ALLRATES_API_KEY in your MCP client config:',
         '',

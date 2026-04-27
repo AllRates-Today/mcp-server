@@ -62,7 +62,7 @@ After installation, your assistant can answer questions like:
 
 ## Get an API key (required)
 
-The server **will not start** without a valid `ALLRATES_API_KEY`. The free plan is enough for development and personal use — **300 requests/month, no credit card**.
+The server **will not start** without a valid `ALLRATES_API_KEY`. A free key is enough for development and personal use — **no credit card required**.
 
 1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
 2. Verify your email
@@ -334,16 +334,9 @@ You set these in your MCP client's config (in the `env` block) — not in your s
 
 ---
 
-## Plans and limits
+## Plans
 
-| Plan | Monthly requests | Price |
-|---|---|---|
-| **Free** | 300 | €0 |
-| **Small** | 5,000 | €4.99/mo |
-| **Medium** | 10,000 | €9.99/mo |
-| **Large** | 100,000 | €49.99/mo |
-
-Full pricing at [allratestoday.com/pricing](https://allratestoday.com/pricing). All plans include the same currency coverage and historical depth — only the request quotas differ.
+A free tier and paid plans are available. See [allratestoday.com/pricing](https://allratestoday.com/pricing) for current quotas. All plans include the same currency coverage and historical depth — only the request quotas differ.
 
 ---
 
@@ -353,7 +346,7 @@ Full pricing at [allratestoday.com/pricing](https://allratestoday.com/pricing). 
 |---|---|---|
 | Client shows "MCP server failed to start" or red dot | `ALLRATES_API_KEY` not set or invalid | Verify the key in your client config; check it matches the dashboard |
 | Tools show but every call returns "Invalid AllRatesToday API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
-| Tools return "AllRatesToday API quota exceeded" | Free-tier 300 req/month limit hit | Wait until next month or upgrade plan |
+| Tools return "AllRatesToday API quota exceeded" | Free-tier monthly limit hit | Wait until next month or upgrade plan |
 | Historical tool returns "Bad request" | Invalid period or unknown currency code | Period must be `1d`/`7d`/`30d`/`1y`; codes must be 3 letters |
 | Server starts but tools never appear in client | Client didn't reload after config change | Fully quit (not just close) and reopen the client |
 | `npx` runs but hangs forever | The server is waiting for an MCP client to connect — this is normal when run from a shell | Don't run from a shell; let your MCP client launch it |
@@ -389,7 +382,7 @@ The LLM will surface these messages in its response, so a user prompt that hits 
 ## FAQ
 
 **Is the free plan really enough for normal use?**
-Yes for personal/dev use. 300 requests/month covers ~10 questions per day. Heavy interactive use, multiple chat sessions per day, or running the server in production should consider the paid tiers.
+Yes for personal/dev use. The free tier covers a few daily questions. Heavy interactive use, multiple chat sessions per day, or running the server in production should consider the paid tiers.
 
 **Do you store my conversation or query data?**
 No. Only your API key and the request parameters (source, target, period, time) are sent to allratestoday.com — never the LLM's conversation context, sheet contents, or anything else.

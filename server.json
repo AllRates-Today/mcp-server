@@ -6,12 +6,12 @@
     "url": "https://github.com/cahthuranag/mcp-server",
     "source": "github"
   },
-  "version": "0.3.1",
+  "version": "0.3.3",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@allratestoday/mcp-server",
-      "version": "0.3.1",
+      "version": "0.3.3",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         {
