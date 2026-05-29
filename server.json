@@ -1,11 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cahthuranag/mcp-server",
-  "description": "Real-time currency exchange rates, historical data, and multi-currency lookups via AllRatesToday.",
+  "title": "AllRatesToday",
+  "description": "Live and historical foreign exchange rates for 150+ fiat currencies via AllRatesToday. Tools: get_exchange_rate, get_historical_rates, get_rates_authenticated, list_currencies. Mid-market rates sourced from Reuters/Refinitiv.",
   "repository": {
     "url": "https://github.com/cahthuranag/mcp-server",
     "source": "github"
   },
+  "websiteUrl": "https://allratestoday.com",
   "version": "0.3.3",
   "packages": [
     {
