@@ -1,5 +1,7 @@
 # AllRatesToday MCP Server
 
+[![Powered by AllRatesToday](https://img.shields.io/badge/Powered%20by-AllRatesToday-orange.svg)](https://allratestoday.com)
+
 [![npm version](https://img.shields.io/npm/v/@allratestoday/mcp-server.svg?style=flat-square)](https://www.npmjs.com/package/@allratestoday/mcp-server)
 [![npm downloads](https://img.shields.io/npm/dm/@allratestoday/mcp-server.svg?style=flat-square)](https://www.npmjs.com/package/@allratestoday/mcp-server)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
