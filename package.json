@@ -1,6 +1,6 @@
 {
   "name": "@allratestoday/mcp-server",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "mcpName": "io.github.cahthuranag/mcp-server",
   "description": "MCP server for AllRatesToday — let AI coding tools (Claude Code, Cursor, Claude Desktop) fetch real-time and historical currency exchange rates.",
   "keywords": [
@@ -35,12 +35,13 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "node --test test/*.test.mjs",
     "prepublishOnly": "npm run build",
     "start": "node dist/index.js",
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

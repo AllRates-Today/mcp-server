@@ -1,5 +1,6 @@
+import { VERSION } from './version.js';
+
 const DEFAULT_BASE_URL = 'https://allratestoday.com/api';
-const USER_AGENT = `allratestoday-mcp/0.3.1`;
 
 export interface ClientOptions {
   apiKey?: string;
@@ -15,6 +16,19 @@ export class AllRatesTodayError extends Error {
   ) {
     super(message);
     this.name = 'AllRatesTodayError';
+  }
+}
+
+function errorMessage(status: number, upstream: string | undefined): string {
+  switch (status) {
+    case 400:
+      return upstream ?? 'Bad request — possibly an unknown currency code';
+    case 401:
+      return 'Invalid AllRatesToday API key';
+    case 429:
+      return 'AllRatesToday API quota exceeded';
+    default:
+      return upstream ? `HTTP ${status} — ${upstream}` : `HTTP ${status}`;
   }
 }
 
@@ -35,16 +49,17 @@ export class AllRatesTodayClient {
       if (value !== undefined && value !== '') url.searchParams.set(key, value);
     }
 
-    const headers: Record<string, string> = {
-      'Accept': 'application/json',
-      'User-Agent': USER_AGENT,
-    };
     if (!this.apiKey) {
       throw new AllRatesTodayError(
         'AllRatesToday API key is required. Sign up free at https://allratestoday.com/register to get a key, then set ALLRATES_API_KEY in your MCP config.',
       );
     }
-    headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'User-Agent': `allratestoday-mcp/${VERSION}`,
+      'Authorization': `Bearer ${this.apiKey}`,
+    };
 
     const res = await this.fetchImpl(url.toString(), { method: 'GET', headers });
     const text = await res.text();
@@ -56,11 +71,11 @@ export class AllRatesTodayClient {
     }
 
     if (!res.ok) {
-      const msg =
-        (body && typeof body === 'object' && 'error' in body && typeof (body as any).error === 'string'
+      const upstream =
+        body && typeof body === 'object' && 'error' in body && typeof (body as any).error === 'string'
           ? (body as any).error
-          : `HTTP ${res.status}`);
-      throw new AllRatesTodayError(msg, res.status, body);
+          : undefined;
+      throw new AllRatesTodayError(errorMessage(res.status, upstream), res.status, body);
     }
 
     return body as T;
