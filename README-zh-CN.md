@@ -52,7 +52,7 @@
 |---|---|
 | **货币种类** | 150+ 种 ISO 4217 货币代码，覆盖所有主要货币和大部分小币种 |
 | **更新频率** | 中间价大约每 60 秒刷新一次 |
-| **数据来源** | 一线金融数据提供商（Reuters / Refinitiv 等级） |
+| **数据来源** | 机构级银行间市场数据 |
 | **历史深度** | 最长 1 年，提供 `1d` / `7d` / `30d` / `1y` 四种时间粒度 |
 | **暴露的工具** | 4 个 — `get_exchange_rate`、`get_historical_rates`、`get_rates_authenticated`、`list_currencies` |
 | **传输方式** | stdio（子进程），兼容 MCP 1.x |

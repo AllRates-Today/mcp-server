@@ -54,7 +54,7 @@ After installation, your assistant can answer questions like:
 |---|---|
 | **Currencies** | 150+ ISO 4217 codes, all major and most exotics |
 | **Update frequency** | Mid-market rates refresh every ~60 seconds |
-| **Data source** | Tier-1 financial data providers (Reuters / Refinitiv-class) |
+| **Data source** | Institutional interbank market data |
 | **Historical depth** | Up to 1 year via `1d` / `7d` / `30d` / `1y` granularity |
 | **Tools exposed** | 4 — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies` |
 | **Transport** | stdio (subprocess), MCP 1.x compatible |
