@@ -8,12 +8,12 @@
     "source": "github"
   },
   "websiteUrl": "https://allratestoday.com",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@allratestoday/mcp-server",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         {
