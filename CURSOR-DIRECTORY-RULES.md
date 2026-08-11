@@ -31,7 +31,7 @@ It covers the REST API, the official SDKs, and the MCP server (`@allratestoday/m
 
 ### Authentication & Secrets
 
-- Get a free key at https://allratestoday.com/register (300 requests/month, no card).
+- Get a free key at https://allratestoday.com/register (no credit card required).
 - Key format: `art_live_…`. Store it in the `ALLRATES_API_KEY` environment variable.
 - Load it from `process.env` / `os.environ` / `$_ENV` — never inline it in source.
 - For browser apps, proxy through your own backend; the browser must never see the key.
@@ -134,7 +134,6 @@ Exposed tools:
 - Cache rates for **at least 60 seconds** (the refresh cadence). Key the cache by `source:target`.
 - For dashboards, fetch on an interval (every 60–300s), not per component render.
 - Batch with `targets=` to convert many currencies in a single request.
-- Free tier = 300 requests/month — budget accordingly; one multi-target call = one request.
 
 ### Currency & Amount Handling
 
@@ -160,7 +159,7 @@ Exposed tools:
 
 ### Plans
 
-- Free — 300 requests/month · Small — €4.99/mo, 5,000 · Medium — €9.99/mo, 10,000 ·
+- Free tier available · Small — €4.99/mo, 5,000 · Medium — €9.99/mo, 10,000 ·
   Large — €49.99/mo, 100,000. Full pricing: https://allratestoday.com/pricing
 
 ### Links
