@@ -23,23 +23,56 @@ After installation, your assistant can answer questions like:
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
 - 🧰 **Four focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host
-- 🛡️ **Fail-fast and honest** — refuses to start without a key, maps API errors to clear actionable messages the assistant can relay
+- 🔓 **Works with no API key** — installs and answers out of the box from the open ECB reference table; a free key unlocks real-time rates for 160+ currencies
+- 🛡️ **Honest about what it returned** — every keyless answer says which rate it is and when it was published; API errors map to clear, actionable messages
 - 🔒 **Nothing leaks** — only the request parameters and your API key ever reach allratestoday.com; never conversation context
 
 ## ⚖️ Mid-market vs official central-bank rates
 
-Everything this server returns is a **mid-market rate**: the live interbank midpoint, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, AllRatesToday also serves **published central-bank and tax-authority rates** (47 sources — ECB, Fed, HMRC, US Treasury, …) that are fixed once published and carry the institution's own publication date — via the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
+Everything this server returns is a **mid-market rate**: the live interbank midpoint, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, AllRatesToday also serves **published central-bank and tax-authority rates** (100+ sources — ECB, Fed, HMRC, US Treasury, …) that are fixed once published and carry the institution's own publication date — via the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
 
-## 🔑 Get your API key
+## 🔓 Keyless mode — what works with no setup
 
-The server **will not start** without a valid `ALLRATES_API_KEY`. A free key is enough for development and personal use — **no credit card required**.
+Install it with no configuration at all and it starts, connects, and answers:
+
+| Tool | Keyless | What you get |
+|---|---|---|
+| `get_exchange_rate` | ✅ | Official **ECB daily reference rate**, ~30 major currencies. The response carries `rate_date` and a note saying so, so the assistant never passes it off as a live quote. |
+| `list_currencies` | ✅ | All 160+ supported ISO 4217 codes. |
+| `get_historical_rates` | 🔑 | Returns one sentence explaining how to get a free key. |
+| `get_rates_authenticated` | 🔑 | Same. |
+
+The keyless path reads the open, edge-cached `/api/open/central-bank/ecb`
+endpoint — no upstream cost, no rate limit to trip over, nothing to sign up for.
+
+## 🔑 Get your API key (free)
+
+A key unlocks **real-time mid-market rates across 160+ currencies**, historical
+series, and multi-target / point-in-time lookups. The free tier is enough for
+development and personal use — **no credit card required**.
 
 1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
 2. Verify your email
 3. Copy your key from the dashboard (format: `art_live_xxxxx`)
 4. Use it as `ALLRATES_API_KEY` in the configs below
 
-If you forget, the server prints registration instructions on stderr and exits with code 1.
+Without one the server prints a short summary of keyless mode on stderr and
+keeps running — it never exits, because an MCP server that exits breaks the
+host client's whole configuration.
+
+## 🧩 Easiest install: the Claude Code plugin
+
+If you use Claude Code, install the plugin instead of configuring this server by
+hand — it bundles both AllRatesToday MCP servers, two skills, and five slash
+commands (`/rate`, `/convert`, `/official-rate`, `/fx-history`,
+`/add-currency-support`):
+
+```
+/plugin marketplace add AllRates-Today/claude-code-plugin
+/plugin install allratestoday@allratestoday
+```
+
+Everything below still applies for other MCP clients.
 
 ## 📦 Installation
 
@@ -272,7 +305,7 @@ All supported currencies with codes, names, and symbols. Cached upstream for 24 
 
 | Variable | Default | Required | Purpose |
 |---|---|---|---|
-| `ALLRATES_API_KEY` | — | **yes** | Your API key. The server exits at startup if unset. |
+| `ALLRATES_API_KEY` | — | no | Your API key. Unset ⇒ keyless mode (see above); set ⇒ real-time rates and the historical tools. |
 | `ALLRATES_BASE_URL` | `https://allratestoday.com/api` | no | Override for self-hosted or staging deployments. |
 
 Set these in your MCP client's config (in the `env` block) — not in your shell — because MCP servers are launched as subprocesses with isolated environments.
@@ -285,7 +318,8 @@ A free tier and paid plans are available — see [allratestoday.com/pricing](htt
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Client shows "MCP server failed to start" or red dot | `ALLRATES_API_KEY` not set or invalid | Verify the key in your client config; check it matches the dashboard |
+| Client shows "MCP server failed to start" or red dot | Not a missing key — 0.5.0+ starts fine without one. Usually `npx` cannot reach the registry, or Node is older than 18 | Run `npx -y @allratestoday/mcp-server` in a shell and read stderr |
+| Rates look like yesterday's, response mentions "keyless mode" | No key set, so answers come from the ECB daily reference table | Set `ALLRATES_API_KEY` for real-time mid-market rates |
 | Every call returns "Invalid AllRatesToday API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
 | Tools return "AllRatesToday API quota exceeded" | Monthly limit hit | Wait until next month or upgrade plan |
 | Historical tool returns "Bad request" | Invalid period or unknown currency code | Period must be `1d`/`7d`/`30d`/`1y`; codes must be 3 letters |
@@ -367,6 +401,7 @@ server.json       # MCP registry manifest
 
 See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for the full list. Recent highlights:
 
+- **0.5.0** — Keyless mode: the server starts and answers without an API key (`get_exchange_rate` via the open ECB reference table, `list_currencies` unchanged); metered tools return actionable sign-up guidance instead of the process exiting
 - **0.4.x** — README overhaul; registry metadata updates
 - **0.3.x** — API key required for all tools; fail-fast at startup with clear error
 - **0.2.x** — Removed news tool, required auth on `get_historical_rates`
