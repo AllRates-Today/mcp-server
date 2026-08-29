@@ -44,25 +44,29 @@ function fail(err: unknown) {
 
 async function main() {
   const apiKey = process.env.ALLRATES_API_KEY;
+
+  // No key is NOT a fatal error. get_exchange_rate falls back to the open,
+  // edge-cached ECB reference table and list_currencies is already keyless, so
+  // the server is useful the moment it is installed; the metered tools explain
+  // how to get a free key when they are called. Exiting here instead would
+  // break the whole MCP config in the host client.
   if (!apiKey) {
     console.error(
       [
         '',
-        '  AllRatesToday MCP server requires an API key.',
+        '  AllRatesToday MCP — running in KEYLESS mode.',
         '',
-        '  1. Sign up free at https://allratestoday.com/register (free tier — no card required)',
-        '  2. Copy your API key from the dashboard',
-        '  3. Set ALLRATES_API_KEY in your MCP client config:',
+        '  Available now, no key needed:',
+        '    • get_exchange_rate  — official ECB daily reference rate, ~30 major currencies',
+        '    • list_currencies    — all supported currency codes',
         '',
-        '     "allratestoday": {',
-        '       "command": "npx",',
-        '       "args": ["-y", "@allratestoday/mcp-server"],',
-        '       "env": { "ALLRATES_API_KEY": "art_live_..." }',
-        '     }',
+        '  Needs a free API key (real-time mid-market rates for 160+ currencies,',
+        '  historical series, multi-target and point-in-time lookups):',
+        '    1. https://allratestoday.com/register — free tier, no card, under a minute',
+        '    2. Add to this server\'s MCP config:  "env": { "ALLRATES_API_KEY": "art_live_..." }',
         '',
       ].join('\n'),
     );
-    process.exit(1);
   }
 
   const client = new AllRatesTodayClient({
@@ -82,6 +86,11 @@ async function main() {
       outputSchema: {
         rate: z.number().describe('How much 1 unit of source is worth in target'),
         source: z.string().describe('Upstream data provider the rate came from'),
+        // Keyless mode answers from the open ECB reference table and adds the
+        // publication date plus a note the assistant should relay.
+        rate_date: z.string().optional(),
+        derived: z.boolean().optional(),
+        note: z.string().optional(),
       },
       annotations: READ_ONLY,
     },

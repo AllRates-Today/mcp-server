@@ -80,11 +80,33 @@ test('500 includes status and upstream message', async () => {
   );
 });
 
-test('missing API key throws before any request', async () => {
+test('keyless getRate falls back to the open ECB endpoint, unauthenticated', async () => {
+  const capture = {};
+  const client = new AllRatesTodayClient({
+    fetchImpl: stubFetch(200, { bank: 'ecb', rate_date: '2026-08-28', rate: 0.86, derived: true }, capture),
+  });
+  const res = await client.getRate('USD', 'EUR');
+  assert.equal(client.keyless, true);
+  assert.match(capture.url, /\/open\/central-bank\/ecb\?source=USD&target=EUR$/);
+  assert.equal(capture.init.headers.Authorization, undefined);
+  assert.match(capture.init.headers['User-Agent'], /keyless/);
+  assert.equal(res.rate, 0.86);
+  assert.equal(res.rate_date, '2026-08-28');
+  assert.match(res.note, /ALLRATES_API_KEY/);
+});
+
+test('keyless metered tools explain how to get a free key, without calling out', async () => {
   const client = new AllRatesTodayClient({
     fetchImpl: () => {
       throw new Error('should not be called');
     },
   });
-  await assert.rejects(() => client.getRate('USD', 'EUR'), /API key is required/);
+  await assert.rejects(
+    () => client.getHistoricalRates('USD', 'EUR', '7d'),
+    /needs an AllRatesToday API key[\s\S]*register/,
+  );
+  await assert.rejects(
+    () => client.getAuthenticatedRates({ source: 'USD', target: 'EUR' }),
+    /needs an AllRatesToday API key/,
+  );
 });

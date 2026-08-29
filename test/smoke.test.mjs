@@ -48,16 +48,29 @@ function rpcSession(env) {
   };
 }
 
-test('exits with guidance when ALLRATES_API_KEY is missing', async () => {
-  const child = spawn(process.execPath, [SERVER], {
-    env: { ...process.env, ALLRATES_API_KEY: '' },
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
+test('starts in keyless mode when ALLRATES_API_KEY is missing', async () => {
+  // A missing key must not kill the process: an MCP server that exits breaks
+  // the host client's whole config. It announces keyless mode and keeps serving.
+  const session = rpcSession({ ALLRATES_API_KEY: '' });
   let stderr = '';
-  child.stderr.on('data', (c) => (stderr += c.toString()));
-  const code = await new Promise((resolve) => child.on('exit', resolve));
-  assert.equal(code, 1);
-  assert.match(stderr, /requires an API key/);
+  session.child.stderr.on('data', (c) => (stderr += c.toString()));
+  try {
+    const init = await session.request(
+      'initialize',
+      {
+        protocolVersion: '2025-03-26',
+        capabilities: {},
+        clientInfo: { name: 'test', version: '0' },
+      },
+      1,
+    );
+    assert.equal(init.result.serverInfo.name, 'allratestoday-mcp');
+    const tools = await session.request('tools/list', {}, 2);
+    assert.equal(tools.result.tools.length, 4);
+  } finally {
+    session.kill();
+  }
+  assert.match(stderr, /KEYLESS mode/);
   assert.match(stderr, /allratestoday\.com\/register/);
 });
 

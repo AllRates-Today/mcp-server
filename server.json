@@ -2,24 +2,26 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cahthuranag/mcp-server",
   "title": "AllRatesToday",
-  "description": "Real-time & historical exchange rates for 150+ currencies via AllRatesToday (mid-market).",
+  "description": "Real-time & historical exchange rates for 160+ currencies via AllRatesToday (mid-market). Works with no API key.",
   "repository": {
     "url": "https://github.com/cahthuranag/mcp-server",
     "source": "github"
   },
   "websiteUrl": "https://allratestoday.com",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@allratestoday/mcp-server",
-      "version": "0.4.3",
-      "transport": { "type": "stdio" },
+      "version": "0.5.0",
+      "transport": {
+        "type": "stdio"
+      },
       "environmentVariables": [
         {
           "name": "ALLRATES_API_KEY",
-          "description": "Your AllRatesToday API key (art_live_xxxxx). Required for all tools. Sign up free at https://allratestoday.com/register.",
-          "isRequired": true,
+          "description": "Optional. Without it the server runs keyless: get_exchange_rate answers from the official ECB daily reference table (~30 majors) and list_currencies works. A free key (https://allratestoday.com/register) unlocks real-time mid-market rates for 160+ currencies, historical series, and multi-target/point-in-time lookups.",
+          "isRequired": false,
           "isSecret": true
         },
         {
