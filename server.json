@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cahthuranag/mcp-server",
   "title": "AllRatesToday",
-  "description": "Real-time & historical exchange rates for 160+ currencies via AllRatesToday (mid-market). Works with no API key.",
+  "description": "Real-time & historical exchange rates for 160+ currencies. No API key needed to start.",
   "repository": {
     "url": "https://github.com/cahthuranag/mcp-server",
     "source": "github"
