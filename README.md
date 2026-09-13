@@ -74,6 +74,20 @@ commands (`/rate`, `/convert`, `/official-rate`, `/fx-history`,
 
 Everything below still applies for other MCP clients.
 
+## ☁️ Hosted endpoint — nothing to install
+
+The same tools also run as a hosted **Streamable HTTP** MCP server (together with the tools of the sibling AllRatesToday server, nine in total). Paste the URL into any client that supports remote MCP — Claude.ai and Claude Desktop connectors, ChatGPT, Cursor, VS Code, Codex, Gemini CLI:
+
+```
+https://allratestoday.com/api/mcp
+```
+
+```bash
+claude mcp add --transport http allratestoday https://allratestoday.com/api/mcp
+```
+
+Works keyless. With a key, send `Authorization: Bearer art_live_…` or, where the client only takes a URL, connect to `https://allratestoday.com/api/mcp?api_key=art_live_…`. Registry name: `com.allratestoday/mcp`. One-click Cursor / VS Code buttons: https://allratestoday.com/mcp/#hosted
+
 ## 📦 Installation
 
 The simplest install is **zero-install via `npx`**, which is what every config below uses:
