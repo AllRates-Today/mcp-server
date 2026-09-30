@@ -19,7 +19,7 @@ After installation, your assistant can answer questions like:
 
 ## 🚀 Why this server?
 
-- 📡 **Live mid-market rates** — 150+ ISO 4217 currencies, refreshed every ~60 seconds from institutional interbank data
+- 📡 **Live mid-market rates** — 150+ ISO 4217 currencies, refreshed every ~60 seconds
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
 - 🧰 **Four focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host
@@ -29,7 +29,7 @@ After installation, your assistant can answer questions like:
 
 ## ⚖️ Mid-market vs official central-bank rates
 
-Everything this server returns is a **mid-market rate**: the live interbank midpoint, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, AllRatesToday also serves **published central-bank and tax-authority rates** (100+ sources — ECB, Fed, HMRC, US Treasury, …) that are fixed once published and carry the institution's own publication date — via the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
+Everything this server returns is a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, AllRatesToday also serves **published central-bank and tax-authority rates** (100+ sources — ECB, Fed, HMRC, US Treasury, …) that are fixed once published and carry the institution's own publication date — via the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
 
 ## 🔓 Keyless mode — what works with no setup
 
