@@ -21,7 +21,7 @@ After installation, your assistant can answer questions like:
 
 - 📡 **Live mid-market rates** — 150+ ISO 4217 currencies, refreshed every ~60 seconds
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
-- 🧰 **Four focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`; small surface, easy for the model to use correctly
+- 🧰 **Six focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host
 - 🔓 **Works with no API key** — installs and answers out of the box from the open ECB reference table; a free key unlocks real-time rates for 160+ currencies
 - 🛡️ **Honest about what it returned** — every keyless answer says which rate it is and when it was published; API errors map to clear, actionable messages
@@ -29,7 +29,7 @@ After installation, your assistant can answer questions like:
 
 ## ⚖️ Mid-market vs official central-bank rates
 
-Everything this server returns is a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, AllRatesToday also serves **published central-bank and tax-authority rates** (100+ sources — ECB, Fed, HMRC, US Treasury, …) that are fixed once published and carry the institution's own publication date — via the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
+Everything this server returns is a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, call **`get_official_rates`**: the latest table published by any of 121 central banks and 3 tax authorities (ECB, Fed, HMRC, US Treasury, Swiss BAZG, …), fixed once published and carrying the institution's own `rate_date`, no key needed. `list_central_banks` gives the codes. Dated tables and history sit behind the free key — see the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
 
 ## 🔓 Keyless mode — what works with no setup
 
@@ -39,6 +39,8 @@ Install it with no configuration at all and it starts, connects, and answers:
 |---|---|---|
 | `get_exchange_rate` | ✅ | Official **ECB daily reference rate**, ~30 major currencies. The response carries `rate_date` and a note saying so, so the assistant never passes it off as a live quote. |
 | `list_currencies` | ✅ | All 160+ supported ISO 4217 codes. |
+| `list_central_banks` | ✅ | Codes, names and latest publication date of all 121 central banks + 3 tax authorities. |
+| `get_official_rates` | ✅ | Latest **official table** (or one pair) published by any of them. A dated table needs the key. |
 | `get_historical_rates` | 🔑 | Returns one sentence explaining how to get a free key. |
 | `get_rates_authenticated` | 🔑 | Same. |
 
@@ -138,7 +140,7 @@ Edit `~/.cursor/mcp.json` (or `.cursor/mcp.json` inside your project for project
 }
 ```
 
-Restart Cursor. The four tools should appear in the MCP tool picker.
+Restart Cursor. The six tools should appear in the MCP tool picker.
 
 ### Claude Desktop
 
@@ -185,7 +187,7 @@ npx -y @allratestoday/mcp-server
 After configuring your client, test in this order:
 
 1. **Server starts** — open the client. A red dot or "failed to connect" means the API key is missing or wrong (see Troubleshooting below).
-2. **Tools are listed** — most clients have a "tools" or "MCP" panel showing the four tools.
+2. **Tools are listed** — most clients have a "tools" or "MCP" panel showing the six tools.
 3. **A live call returns a number** — ask: *"What's the current USD to EUR rate?"* The assistant should call `get_exchange_rate(source: "USD", target: "EUR")` and reply with a real rate. If it fabricates a number without a tool call, the server isn't connected.
 
 ## 📚 Tools reference
@@ -194,8 +196,10 @@ After configuring your client, test in this order:
 - [`get_historical_rates`](#get_historical_rates) — time series over a preset period
 - [`get_rates_authenticated`](#get_rates_authenticated) — multiple targets in one call, optional point-in-time
 - [`list_currencies`](#list_currencies) — all supported currency codes, names, symbols
+- [`list_central_banks`](#list_central_banks) — every covered central bank / tax authority with its code and latest publication date
+- [`get_official_rates`](#get_official_rates) — the official table (or one pair) a named institution published
 
-All four tools require `ALLRATES_API_KEY`.
+`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY`; the other four work keyless.
 
 ---
 
@@ -315,6 +319,61 @@ All supported currencies with codes, names, and symbols. Cached upstream for 24 
 
 ---
 
+### `list_central_banks`
+
+Every official source the server can quote — 121 central banks plus HMRC, the US Treasury and Swiss BAZG — with the `code` that `get_official_rates` takes as `bank`, the institution's name, its latest publication date and a `stale` flag when it is behind its own schedule. Keyless.
+
+**Input** — none.
+
+**Response (truncated):**
+
+```json
+{
+  "sources": [
+    { "code": "ecb", "name": "European Central Bank", "latest": "2026-09-30", "stale": false },
+    { "code": "fed", "name": "Federal Reserve", "latest": "2026-09-29", "stale": false },
+    "..."
+  ],
+  "stale_count": 0,
+  "checked_at": "2026-10-01T09:00:00Z"
+}
+```
+
+---
+
+### `get_official_rates`
+
+The fixed, citable rate an institution published — for invoices, VAT and tax returns, customs, transfer pricing and audit. Not a live market rate.
+
+**Input:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `bank` | string | yes | Source code from `list_central_banks`, e.g. `ecb`, `fed`, `boe`, `rbi`, `hmrc` |
+| `date` | string | no | `YYYY-MM-DD`. Omit for the latest table (keyless). Needs the API key. Weekends/holidays roll back to the last published date. |
+| `source` | string | no | With `target`, narrows to one pair |
+| `target` | string | no | With `source`, narrows to one pair |
+
+**Response (one pair):**
+
+```json
+{
+  "bank": "ecb",
+  "rate_date": "2026-09-30",
+  "source": "EUR",
+  "target": "USD",
+  "rate": 1.1355,
+  "rate_type": "reference",
+  "derived": false,
+  "method": "published",
+  "attribution": { "source": "Official rates published by ECB, served by AllRatesToday", "url": "https://allratestoday.com/central-bank-rates-api/ecb/", "terms": "Free to use with visible attribution linking to allratestoday.com" }
+}
+```
+
+Omit `source`/`target` for the whole table as `rates: [{ base, quote, type, value }]`. Pairs the bank does not publish directly are cross-computed inside its own table and flagged `derived: true`. Always cite `rate_date`.
+
+---
+
 ## ⚙️ Environment variables
 
 | Variable | Default | Required | Purpose |
@@ -415,6 +474,7 @@ server.json       # MCP registry manifest
 
 See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for the full list. Recent highlights:
 
+- **0.6.0** — Official rates: new keyless `list_central_banks` and `get_official_rates` tools expose the latest table from 121 central banks + 3 tax authorities (dated tables need the key)
 - **0.5.0** — Keyless mode: the server starts and answers without an API key (`get_exchange_rate` via the open ECB reference table, `list_currencies` unchanged); metered tools return actionable sign-up guidance instead of the process exiting
 - **0.4.x** — README overhaul; registry metadata updates
 - **0.3.x** — API key required for all tools; fail-fast at startup with clear error

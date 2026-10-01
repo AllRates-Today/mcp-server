@@ -54,7 +54,7 @@
 | **更新频率** | 中间价大约每 60 秒刷新一次 |
 | **数据来源** | 机构级银行间市场数据 |
 | **历史深度** | 最长 1 年，提供 `1d` / `7d` / `30d` / `1y` 四种时间粒度 |
-| **暴露的工具** | 4 个 — `get_exchange_rate`、`get_historical_rates`、`get_rates_authenticated`、`list_currencies` |
+| **暴露的工具** | 6 个 — `get_exchange_rate`、`get_historical_rates`、`get_rates_authenticated`、`list_currencies`、`list_central_banks`、`get_official_rates`（央行/税务机关官方汇率，无需密钥） |
 | **传输方式** | stdio（子进程），兼容 MCP 1.x |
 | **运行环境** | Node.js ≥18 |
 

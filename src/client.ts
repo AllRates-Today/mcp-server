@@ -30,8 +30,8 @@ export class NeedsKeyError extends AllRatesTodayError {
       `${what} needs an AllRatesToday API key. The free tier covers it — sign up at ` +
         'https://allratestoday.com/register (no card, under a minute), then set ALLRATES_API_KEY ' +
         "in this MCP server's config and restart. Without a key the server still answers " +
-        'get_exchange_rate for ~30 major currencies (official ECB daily reference rate) and ' +
-        'list_currencies.',
+        'get_exchange_rate for ~30 major currencies (official ECB daily reference rate), ' +
+        'list_currencies, list_central_banks and get_official_rates (latest tables).',
     );
     this.name = 'NeedsKeyError';
   }
@@ -147,6 +147,39 @@ export class AllRatesTodayClient {
     return this.request<
       Array<{ rate: number; source: string; target: string; time: string }>
     >('/v1/rates', params);
+  }
+
+  /** Every covered official source (121 central banks + 3 tax authorities). Keyless. */
+  listCentralBanks() {
+    return this.request<{
+      sources: { code: string; name: string; latest: string | null; stale?: boolean }[];
+      stale_count: number;
+      checked_at: string;
+    }>(this.keyless ? '/open/central-banks' : '/v1/central-banks', {});
+  }
+
+  /**
+   * Latest OFFICIAL table published by a central bank or tax authority, or one
+   * pair from it (cross-computed inside the bank's own table when not published
+   * directly, flagged `derived`). Keyless; a dated table needs the key.
+   */
+  getOfficialRates(bank: string, params: { date?: string; source?: string; target?: string } = {}) {
+    const code = bank.trim().toLowerCase();
+    if (!/^[a-z0-9_-]{2,20}$/.test(code)) {
+      return Promise.reject(new AllRatesTodayError(`Unknown source code "${bank}" — call list_central_banks first.`));
+    }
+    if (Boolean(params.source) !== Boolean(params.target)) {
+      return Promise.reject(new AllRatesTodayError('Provide both source and target, or neither.'));
+    }
+    const pair = { source: params.source?.toUpperCase(), target: params.target?.toUpperCase() };
+    if (this.keyless) {
+      if (params.date) return Promise.reject(new NeedsKeyError(`The ${code} table for ${params.date}`));
+      return this.request<Record<string, unknown>>(`/open/central-bank/${encodeURIComponent(code)}`, pair);
+    }
+    return this.request<Record<string, unknown>>(
+      `/v1/central-bank/${encodeURIComponent(code)}/${params.date ?? 'latest'}`,
+      pair,
+    );
   }
 
   listSymbols() {

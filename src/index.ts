@@ -59,6 +59,8 @@ async function main() {
         '  Available now, no key needed:',
         '    • get_exchange_rate  — official ECB daily reference rate, ~30 major currencies',
         '    • list_currencies    — all supported currency codes',
+        '    • list_central_banks — 121 central banks + 3 tax authorities we carry',
+        '    • get_official_rates — latest official table (or one pair) from any of them',
         '',
         '  Needs a free API key (real-time mid-market rates for 160+ currencies,',
         '  historical series, multi-target and point-in-time lookups):',
@@ -217,6 +219,82 @@ async function main() {
     async () => {
       try {
         return ok(await client.listSymbols());
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'list_central_banks',
+    {
+      title: 'List covered central banks & tax authorities',
+      description:
+        "Call this FIRST when you need a bank code, or for 'which central banks do you cover?' / 'do you have rates from X?'. Returns every covered source — 121 central banks plus 3 tax authorities (HMRC, US Treasury, Swiss BAZG) — with `code` (what get_official_rates takes as `bank`), name, latest publication date and whether it is behind schedule. No API key needed.",
+      inputSchema: {},
+      outputSchema: {
+        sources: z.array(
+          z.object({
+            code: z.string(),
+            name: z.string(),
+            latest: z.string().nullable(),
+            stale: z.boolean().optional(),
+          }).passthrough(),
+        ),
+        stale_count: z.number(),
+        checked_at: z.string(),
+      },
+      annotations: READ_ONLY,
+    },
+    async () => {
+      try {
+        return ok(await client.listCentralBanks());
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'get_official_rates',
+    {
+      title: "Get a bank's official published rates",
+      description:
+        "OFFICIAL rates a named institution published — 'what is the ECB rate for USD?', 'Bank of Japan rate today', 'HMRC rate for invoicing'. These are the fixed, citable rates for compliance, tax, customs and accounting — NOT live market rates (use get_exchange_rate for those). Omit `date` for the newest published table (no API key needed); give `date` (API key) for the table in force that day — weekends/holidays roll back to the last published date and the response's `rate_date` says which. Omit source/target for the full table; give both for one pair — cross-computed inside the bank's own table when not directly published, flagged `derived`. Always cite the returned `rate_date`.",
+      inputSchema: {
+        bank: z
+          .string()
+          .regex(/^[A-Za-z0-9_-]{2,20}$/)
+          .describe("Source code from list_central_banks, e.g. 'ecb', 'fed', 'boe', 'rbi', 'hmrc'. Case-insensitive."),
+        date: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .describe('Optional YYYY-MM-DD. Omit for the latest table.'),
+        source: ccy.optional().describe('Optional. With target, narrows to one pair.'),
+        target: ccy.optional().describe('Optional. With source, narrows to one pair.'),
+      },
+      outputSchema: {
+        bank: z.string(),
+        rate_date: z.string().describe('Publication date of the table — cite this, not today'),
+        // Full table (no pair given)
+        rates: z
+          .array(z.object({ base: z.string(), quote: z.string(), type: z.string(), value: z.number() }))
+          .optional(),
+        // One pair (source + target given)
+        source: z.string().optional(),
+        target: z.string().optional(),
+        rate: z.number().optional(),
+        rate_type: z.string().optional(),
+        derived: z.boolean().optional().describe('True when cross-computed inside the bank table'),
+        stale: z.boolean().optional().describe('True when the institution is behind its publication schedule'),
+        attribution: z.object({ source: z.string(), url: z.string(), terms: z.string() }).passthrough().optional(),
+      },
+      annotations: READ_ONLY,
+    },
+    async ({ bank, date, source, target }) => {
+      try {
+        return ok(await client.getOfficialRates(bank, { date, source, target }));
       } catch (err) {
         return fail(err);
       }

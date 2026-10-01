@@ -110,3 +110,23 @@ test('keyless metered tools explain how to get a free key, without calling out',
     /needs an AllRatesToday API key/,
   );
 });
+
+test('keyless official-rate tools hit the open endpoints and validate input locally', async () => {
+  const calls = [];
+  const client = new AllRatesTodayClient({
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return new Response(JSON.stringify({ bank: 'ecb', rate_date: '2026-09-30', rate: 1.13, sources: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    },
+  });
+  await client.listCentralBanks();
+  await client.getOfficialRates('ECB', { source: 'eur', target: 'usd' });
+  assert.equal(calls[0], 'https://allratestoday.com/api/open/central-banks');
+  assert.equal(calls[1], 'https://allratestoday.com/api/open/central-bank/ecb?source=EUR&target=USD');
+  await assert.rejects(() => client.getOfficialRates('ecb', { source: 'EUR' }), /both source and target/);
+  await assert.rejects(() => client.getOfficialRates('ecb', { date: '2026-09-01' }), /needs an AllRatesToday API key/);
+  await assert.rejects(() => client.getOfficialRates('not a bank'), /Unknown source code/);
+});

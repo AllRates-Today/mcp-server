@@ -8,19 +8,19 @@
     "source": "github"
   },
   "websiteUrl": "https://allratestoday.com",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@allratestoday/mcp-server",
-      "version": "0.5.1",
+      "version": "0.6.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "ALLRATES_API_KEY",
-          "description": "Optional. Without it the server runs keyless: get_exchange_rate answers from the official ECB daily reference table (~30 majors) and list_currencies works. A free key (https://allratestoday.com/register) unlocks real-time mid-market rates for 160+ currencies, historical series, and multi-target/point-in-time lookups.",
+          "description": "Optional. Without it the server runs keyless: get_exchange_rate answers from the official ECB daily reference table (~30 majors), list_currencies works, and list_central_banks / get_official_rates serve the latest official table from 121 central banks + 3 tax authorities. A free key (https://allratestoday.com/register) unlocks real-time mid-market rates for 160+ currencies, historical series, and multi-target/point-in-time lookups.",
           "isRequired": false,
           "isSecret": true
         },
