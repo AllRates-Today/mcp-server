@@ -474,6 +474,7 @@ server.json       # MCP registry manifest
 
 See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for the full list. Recent highlights:
 
+- **0.6.1** — README: Claude Code plugin and hosted `/api/mcp` endpoint cross-links; coverage wording refreshed
 - **0.6.0** — Official rates: new keyless `list_central_banks` and `get_official_rates` tools expose the latest table from 121 central banks + 3 tax authorities (dated tables need the key)
 - **0.5.0** — Keyless mode: the server starts and answers without an API key (`get_exchange_rate` via the open ECB reference table, `list_currencies` unchanged); metered tools return actionable sign-up guidance instead of the process exiting
 - **0.4.x** — README overhaul; registry metadata updates
