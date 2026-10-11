@@ -1,5 +1,7 @@
 # AllRatesToday MCP Server — @allratestoday/mcp-server
 
+Website: https://allratestoday.com · Hosted endpoint (no install): https://allratestoday.com/api/mcp · Docs: https://allratestoday.com/mcp/
+
 [![npm version](https://img.shields.io/npm/v/@allratestoday/mcp-server.svg)](https://www.npmjs.com/package/@allratestoday/mcp-server)
 [![npm downloads](https://img.shields.io/npm/dm/@allratestoday/mcp-server.svg)](https://www.npmjs.com/package/@allratestoday/mcp-server)
 [![license](https://img.shields.io/npm/l/@allratestoday/mcp-server.svg)](./LICENSE)
