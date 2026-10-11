@@ -23,7 +23,7 @@ After installation, your assistant can answer questions like:
 
 - 📡 **Live mid-market rates** — 150+ ISO 4217 currencies, refreshed every ~60 seconds
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
-- 🧰 **Six focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`; small surface, easy for the model to use correctly
+- 🧰 **Eight focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`, `get_reference_rate`, `request_trial_key`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host
 - 🔓 **Works with no API key** — installs and answers out of the box from the open ECB reference table; a free key unlocks real-time rates for 160+ currencies
 - 🛡️ **Honest about what it returned** — every keyless answer says which rate it is and when it was published; API errors map to clear, actionable messages
@@ -43,6 +43,8 @@ Install it with no configuration at all and it starts, connects, and answers:
 | `list_currencies` | ✅ | All 160+ supported ISO 4217 codes. |
 | `list_central_banks` | ✅ | Codes, names and latest publication date of all 121 central banks + 3 tax authorities. |
 | `get_official_rates` | ✅ | Latest **official table** (or one pair) published by any of them. A dated table needs the key. |
+| `get_reference_rate` | ✅ | The **Daily Reference Rate**: one never-revised table per business day, fixed at 16:00 London. A past date needs the key. |
+| `request_trial_key` | ✅ | Self-issues a 100-call, 7-day key with no account and adopts it for the session. |
 | `get_historical_rates` | 🔑 | Returns one sentence explaining how to get a free key. |
 | `get_rates_authenticated` | 🔑 | Same. |
 
@@ -200,8 +202,10 @@ After configuring your client, test in this order:
 - [`list_currencies`](#list_currencies) — all supported currency codes, names, symbols
 - [`list_central_banks`](#list_central_banks) — every covered central bank / tax authority with its code and latest publication date
 - [`get_official_rates`](#get_official_rates) — the official table (or one pair) a named institution published
+- [`get_reference_rate`](#get_reference_rate) — the Daily Reference Rate, one fixed mid-market table per business day (16:00 London)
+- [`request_trial_key`](#request_trial_key) — self-issue a 100-call, 7-day trial key, no account needed
 
-`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY`; the other four work keyless.
+`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY`; the other six work keyless.
 
 ---
 
@@ -376,6 +380,32 @@ Omit `source`/`target` for the whole table as `rates: [{ base, quote, type, valu
 
 ---
 
+### `get_reference_rate`
+
+AllRatesToday's **Daily Reference Rate**: the per-currency median of samples taken in a five-minute window centred on 16:00 London, published once per business day and never revised. Use it when a report, index or research series needs *one* reproducible rate per day. It is not the WM/Refinitiv fix and not a registered benchmark; every response carries a disclaimer and the `rate_date`.
+
+**Input**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `source` | string | no | With `target`, narrows to one pair (crossed via USD, flagged `derived`) |
+| `target` | string | no | See above |
+| `date` | string | no | Past business day `YYYY-MM-DD` (API key). Omit for the latest table |
+
+**Output** — `{ rate_date, base, time, rates }` for the table, or `{ rate_date, source, target, rate, derived }` for a pair, plus `method` and `disclaimer`. Keyless for the latest table. Docs: https://allratestoday.com/reference-rate/
+
+---
+
+### `request_trial_key`
+
+Self-issues an API key with 100 lifetime calls, valid 7 days, with no account and no email, and switches this server to it for the rest of the session. The reply tells the user to copy the key into the MCP config as `ALLRATES_API_KEY` to keep it across restarts. Capped at 3 keys per IP per day.
+
+**Input** — `agent` (string, optional), `purpose` (string, optional).
+
+**Output** — `{ key, calls, expires_at, adopted, note }`.
+
+---
+
 ## ⚙️ Environment variables
 
 | Variable | Default | Required | Purpose |
@@ -476,6 +506,7 @@ server.json       # MCP registry manifest
 
 See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for the full list. Recent highlights:
 
+- **0.7.0** — `get_reference_rate` (Daily Reference Rate, 16:00 London, keyless latest table) and `request_trial_key` (self-issued 100-call trial key adopted for the session)
 - **0.6.1** — README: Claude Code plugin and hosted `/api/mcp` endpoint cross-links; coverage wording refreshed
 - **0.6.0** — Official rates: new keyless `list_central_banks` and `get_official_rates` tools expose the latest table from 121 central banks + 3 tax authorities (dated tables need the key)
 - **0.5.0** — Keyless mode: the server starts and answers without an API key (`get_exchange_rate` via the open ECB reference table, `list_currencies` unchanged); metered tools return actionable sign-up guidance instead of the process exiting

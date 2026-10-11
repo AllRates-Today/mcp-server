@@ -130,3 +130,35 @@ test('keyless official-rate tools hit the open endpoints and validate input loca
   await assert.rejects(() => client.getOfficialRates('ecb', { date: '2026-09-01' }), /needs an AllRatesToday API key/);
   await assert.rejects(() => client.getOfficialRates('not a bank'), /Unknown source code/);
 });
+
+test('requestTrialKey POSTs JSON and adopts the key for later calls', async () => {
+  const capture = {};
+  const client = new AllRatesTodayClient({
+    fetchImpl: stubFetch(201, { key: 'art_live_trial', calls: 100, expires_at: '2026-10-18T00:00:00Z' }, capture),
+  });
+  assert.equal(client.keyless, true);
+  const res = await client.requestTrialKey({ agent: 'test' });
+  assert.match(capture.url, /\/api\/agent\/keys$/);
+  assert.equal(capture.init.method, 'POST');
+  assert.equal(capture.init.headers['Content-Type'], 'application/json');
+  assert.equal(JSON.parse(capture.init.body).agent, 'test');
+  assert.equal(res.adopted, true);
+  assert.equal(client.keyless, false);
+  // Subsequent requests carry the adopted key.
+  const cap2 = {};
+  const keyed = new AllRatesTodayClient({ fetchImpl: stubFetch(200, { rate: 1 }, cap2) });
+  keyed.setApiKey('art_live_trial');
+  await keyed.getRate('USD', 'EUR');
+  assert.equal(cap2.init.headers['Authorization'], 'Bearer art_live_trial');
+});
+
+test('getReferenceRate: open path keyless, dated path needs key', async () => {
+  const capture = {};
+  const open = new AllRatesTodayClient({ fetchImpl: stubFetch(200, { rate_date: '2026-10-12' }, capture) });
+  await open.getReferenceRate({ source: 'eur', target: 'gbp' });
+  assert.match(capture.url, /\/api\/open\/reference-rate\?source=EUR&target=GBP$/);
+  await assert.rejects(open.getReferenceRate({ date: '2026-10-12' }), /needs an AllRatesToday API key/);
+  const keyed = new AllRatesTodayClient({ apiKey: 'k', fetchImpl: stubFetch(200, {}, capture) });
+  await keyed.getReferenceRate({ date: '2026-10-12' });
+  assert.match(capture.url, /\/api\/v1\/reference-rate\/2026-10-12$/);
+});

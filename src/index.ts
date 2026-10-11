@@ -61,6 +61,8 @@ async function main() {
         '    • list_currencies    — all supported currency codes',
         '    • list_central_banks — 121 central banks + 3 tax authorities we carry',
         '    • get_official_rates — latest official table (or one pair) from any of them',
+        '    • get_reference_rate — Daily Reference Rate, one fixed table per business day (16:00 London)',
+        '    • request_trial_key  — self-issue a 100-call, 7-day key without an account',
         '',
         '  Needs a free API key (real-time mid-market rates for 160+ currencies,',
         '  historical series, multi-target and point-in-time lookups):',
@@ -295,6 +297,72 @@ async function main() {
     async ({ bank, date, source, target }) => {
       try {
         return ok(await client.getOfficialRates(bank, { date, source, target }));
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'get_reference_rate',
+    {
+      title: 'Get the Daily Reference Rate (16:00 London)',
+      description:
+        "AllRatesToday's once-a-day, never-revised mid-market rate: the per-currency median of samples in a five-minute window centred on 16:00 London, published each business day. Use it when the user needs ONE reproducible rate per day — index levels, return series, research datasets, month-end reports — rather than a live quote (get_exchange_rate) or an institution's official rate (get_official_rates). Omit source/target for the whole table; give both for one pair (crossed via USD, flagged `derived`). Omit `date` for the latest table (no key needed); give `date` (API key) for a past business day. Not the WM/Refinitiv fix and not a registered benchmark — relay the disclaimer and the `rate_date`.",
+      inputSchema: {
+        source: ccy.optional().describe('Optional. With target, narrows to one pair.'),
+        target: ccy.optional().describe('Optional. With source, narrows to one pair.'),
+        date: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .describe('Optional past business day, YYYY-MM-DD (API key). Omit for the latest table.'),
+      },
+      outputSchema: {
+        rate_date: z.string().describe('Business day the table was fixed on — cite this'),
+        base: z.string().optional(),
+        time: z.string().optional().describe('Fixing time, e.g. 16:00 Europe/London'),
+        rates: z.record(z.string(), z.unknown()).optional().describe('Full table keyed by currency code'),
+        source: z.string().optional(),
+        target: z.string().optional(),
+        rate: z.number().optional(),
+        derived: z.boolean().optional(),
+        method: z.string().optional(),
+        disclaimer: z.string().optional(),
+      },
+      annotations: READ_ONLY,
+    },
+    async ({ source, target, date }) => {
+      try {
+        return ok(await client.getReferenceRate({ source, target, date }));
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'request_trial_key',
+    {
+      title: 'Request a trial API key',
+      description:
+        'Self-issue an AllRatesToday API key with 100 lifetime calls, valid 7 days, with no account and no email. Use it when another tool answered "needs an API key" and the user wants real-time rates, history or dated tables right now. The key is adopted by this server for the rest of the session and returned once — tell the user to put it in the MCP config as ALLRATES_API_KEY to keep it. Capped at 3 keys per IP per day. For a lasting key, register at https://allratestoday.com/register (free, 300 calls) or see https://allratestoday.com/pricing.',
+      inputSchema: {
+        agent: z.string().max(80).optional().describe('Optional: the agent or product requesting the key.'),
+        purpose: z.string().max(200).optional().describe('Optional: one line on what the rates are for.'),
+      },
+      outputSchema: {
+        key: z.string().optional(),
+        calls: z.number().optional(),
+        expires_at: z.string().optional(),
+        adopted: z.boolean().describe('True when this server switched to the new key'),
+        note: z.string(),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async ({ agent, purpose }) => {
+      try {
+        return ok(await client.requestTrialKey({ agent, purpose }));
       } catch (err) {
         return fail(err);
       }

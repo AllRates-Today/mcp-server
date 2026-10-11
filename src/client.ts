@@ -51,7 +51,7 @@ function errorMessage(status: number, upstream: string | undefined): string {
 }
 
 export class AllRatesTodayClient {
-  private readonly apiKey?: string;
+  private apiKey?: string;
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
 
@@ -98,6 +98,66 @@ export class AllRatesTodayClient {
   /** True when no API key is configured: only the open endpoints are reachable. */
   get keyless(): boolean {
     return !this.apiKey;
+  }
+
+  /** Adopt a key at runtime (used after request_trial_key) so the rest of the session is keyed. */
+  setApiKey(key: string | undefined): void {
+    this.apiKey = key || undefined;
+  }
+
+  /**
+   * Daily Reference Rate: one never-revised mid-market table per business day,
+   * fixed at 16:00 London (median of samples in a 5-minute window). Latest
+   * table and single pairs are keyless; a dated table needs the key.
+   */
+  getReferenceRate(params: { source?: string; target?: string; date?: string } = {}) {
+    if (Boolean(params.source) !== Boolean(params.target)) {
+      return Promise.reject(new AllRatesTodayError('Provide both source and target, or neither.'));
+    }
+    const pair = { source: params.source?.toUpperCase(), target: params.target?.toUpperCase() };
+    if (params.date) {
+      if (this.keyless) return Promise.reject(new NeedsKeyError(`The reference-rate table for ${params.date}`));
+      return this.request<Record<string, unknown>>(`/v1/reference-rate/${encodeURIComponent(params.date)}`, pair);
+    }
+    return this.request<Record<string, unknown>>('/open/reference-rate', pair);
+  }
+
+  /**
+   * Self-issue a trial key (100 calls, 7 days, no account) and adopt it for the
+   * rest of this process. POST with a JSON body: the site rejects bodiless
+   * POSTs as cross-site form submissions.
+   */
+  async requestTrialKey(params: { agent?: string; purpose?: string } = {}) {
+    const res = await this.fetchImpl(`${this.baseUrl}/agent/keys`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': `allratestoday-mcp/${VERSION}`,
+      },
+      body: JSON.stringify({ agent: params.agent, purpose: params.purpose }),
+    });
+    const text = await res.text();
+    let body: any;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      body = text;
+    }
+    if (!res.ok) {
+      const upstream = body && typeof body === 'object' && typeof body.error === 'string' ? body.error : undefined;
+      throw new AllRatesTodayError(upstream ?? `HTTP ${res.status}`, res.status, body);
+    }
+    const key = body && typeof body === 'object' && typeof body.key === 'string' ? body.key : undefined;
+    if (key) this.setApiKey(key);
+    return {
+      ...(body ?? {}),
+      adopted: Boolean(key),
+      note:
+        'This server now uses the trial key for the rest of this session. To keep it after a restart, ' +
+        'put it in the MCP config: "env": { "ALLRATES_API_KEY": "<key>" }. For a lasting key register free ' +
+        'at https://allratestoday.com/register (300 calls) or see https://allratestoday.com/pricing.',
+    };
   }
 
   getRate(source: string, target: string) {

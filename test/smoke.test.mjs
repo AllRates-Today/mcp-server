@@ -66,7 +66,7 @@ test('starts in keyless mode when ALLRATES_API_KEY is missing', async () => {
     );
     assert.equal(init.result.serverInfo.name, 'allratestoday-mcp');
     const tools = await session.request('tools/list', {}, 2);
-    assert.equal(tools.result.tools.length, 6);
+    assert.equal(tools.result.tools.length, 8);
   } finally {
     session.kill();
   }
@@ -74,7 +74,7 @@ test('starts in keyless mode when ALLRATES_API_KEY is missing', async () => {
   assert.match(stderr, /allratestoday\.com\/register/);
 });
 
-test('initializes and lists 6 read-only tools with schemas', async () => {
+test('initializes and lists 8 tools with schemas', async () => {
   const session = rpcSession({ ALLRATES_API_KEY: 'art_test_dummy' });
   try {
     const init = await session.request(
@@ -94,10 +94,10 @@ test('initializes and lists 6 read-only tools with schemas', async () => {
     const tools = list.result.tools;
     assert.deepEqual(
       tools.map((t) => t.name).sort(),
-      ['get_exchange_rate', 'get_historical_rates', 'get_official_rates', 'get_rates_authenticated', 'list_central_banks', 'list_currencies'],
+      ['get_exchange_rate', 'get_historical_rates', 'get_official_rates', 'get_rates_authenticated', 'get_reference_rate', 'list_central_banks', 'list_currencies', 'request_trial_key'],
     );
     for (const tool of tools) {
-      assert.equal(tool.annotations.readOnlyHint, true, `${tool.name} should be read-only`);
+      assert.equal(tool.annotations.readOnlyHint, tool.name !== 'request_trial_key', `${tool.name} readOnlyHint`);
       assert.ok(tool.inputSchema, `${tool.name} missing inputSchema`);
       assert.ok(tool.outputSchema, `${tool.name} missing outputSchema`);
       assert.ok(tool.description.length > 50, `${tool.name} missing description`);
