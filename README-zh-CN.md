@@ -407,7 +407,7 @@ Anthropic 的 MCP 标准适用于任何兼容 MCP 的客户端。ChatGPT Desktop
 ## 本地开发
 
 ```bash
-git clone https://github.com/cahthuranag/mcp-server.git
+git clone https://github.com/AllRates-Today/mcp-server.git
 cd mcp-server
 npm install
 npm run build
@@ -441,7 +441,7 @@ package.json      # npm 元数据、依赖、脚本
 
 ### 贡献指南
 
-欢迎在 [github.com/cahthuranag/mcp-server](https://github.com/cahthuranag/mcp-server) 提交 issue 与 PR。开 PR 前请确保：
+欢迎在 [github.com/AllRates-Today/mcp-server](https://github.com/AllRates-Today/mcp-server) 提交 issue 与 PR。开 PR 前请确保：
 
 1. `npm run build` 无错误
 2. 用真实 AllRatesToday API 密钥（设置 `ALLRATES_API_KEY`）测试通过
@@ -452,7 +452,7 @@ package.json      # npm 元数据、依赖、脚本
 
 ## 更新日志
 
-完整版本历史见 [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases)。近期亮点：
+完整版本历史见 [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases)。近期亮点：
 
 - **0.3.x** — 所有工具均需 API 密钥；启动时立即报错并给出清晰提示
 - **0.2.x** — 移除新闻工具，`get_historical_rates` 改为需要鉴权
@@ -463,7 +463,7 @@ package.json      # npm 元数据、依赖、脚本
 ## 支持与反馈
 
 - **API 相关问题**：[support@allratestoday.com](mailto:support@allratestoday.com)
-- **Bug 反馈**：[github.com/cahthuranag/mcp-server/issues](https://github.com/cahthuranag/mcp-server/issues)
+- **Bug 反馈**：[github.com/AllRates-Today/mcp-server/issues](https://github.com/AllRates-Today/mcp-server/issues)
 - **MCP 协议问题**：[modelcontextprotocol.io](https://modelcontextprotocol.io) — 协议官方文档
 - **状态/可用性**：[allratestoday.com](https://allratestoday.com)（状态页正在搭建中）
 

@@ -477,7 +477,7 @@ MCP works with any MCP-compatible client. ChatGPT Desktop has experimental MCP s
 ## 👩‍💻 Development
 
 ```bash
-git clone https://github.com/cahthuranag/mcp-server.git
+git clone https://github.com/AllRates-Today/mcp-server.git
 cd mcp-server
 npm install
 npm run build
@@ -500,11 +500,11 @@ dist/             # Compiled JS (gitignored)
 server.json       # MCP registry manifest
 ```
 
-**Contributing** — issues and PRs welcome at [github.com/cahthuranag/mcp-server](https://github.com/cahthuranag/mcp-server). Before opening a PR: `npm run build` must succeed, test against a real API key, and update the tool descriptions in `src/index.ts` plus this README's tools reference if you change tool behavior.
+**Contributing** — issues and PRs welcome at [github.com/AllRates-Today/mcp-server](https://github.com/AllRates-Today/mcp-server). Before opening a PR: `npm run build` must succeed, test against a real API key, and update the tool descriptions in `src/index.ts` plus this README's tools reference if you change tool behavior.
 
 ## 📝 Changelog
 
-See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for the full list. Recent highlights:
+See [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases) for the full list. Recent highlights:
 
 - **0.7.0** — `get_reference_rate` (Daily Reference Rate, 16:00 London, keyless latest table) and `request_trial_key` (self-issued 100-call trial key adopted for the session)
 - **0.6.1** — README: Claude Code plugin and hosted `/api/mcp` endpoint cross-links; coverage wording refreshed
@@ -520,7 +520,7 @@ See [GitHub Releases](https://github.com/cahthuranag/mcp-server/releases) for th
 - [API documentation](https://allratestoday.com/docs/) · [Interactive reference](https://allratestoday.com/api-reference/)
 - [Register (free)](https://allratestoday.com/register) · [Pricing](https://allratestoday.com/pricing)
 - [MCP protocol docs](https://modelcontextprotocol.io)
-- [GitHub](https://github.com/cahthuranag/mcp-server) · [Bug reports](https://github.com/cahthuranag/mcp-server/issues)
+- [GitHub](https://github.com/AllRates-Today/mcp-server) · [Bug reports](https://github.com/AllRates-Today/mcp-server/issues)
 - Support: [support@allratestoday.com](mailto:support@allratestoday.com)
 
 ## 📜 License

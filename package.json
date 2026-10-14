@@ -1,6 +1,6 @@
 {
   "name": "@allratestoday/mcp-server",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "mcpName": "io.github.cahthuranag/mcp-server",
   "description": "MCP server for AllRatesToday — let AI coding tools (Claude Code, Cursor, Claude Desktop) fetch real-time and historical currency exchange rates.",
   "keywords": [
@@ -17,9 +17,9 @@
   "homepage": "https://allratestoday.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cahthuranag/mcp-server.git"
+    "url": "git+https://github.com/AllRates-Today/mcp-server.git"
   },
-  "bugs": "https://github.com/cahthuranag/mcp-server/issues",
+  "bugs": "https://github.com/AllRates-Today/mcp-server/issues",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -47,5 +47,6 @@
   "devDependencies": {
     "@types/node": "^26.1.1",
     "typescript": "^7.0.2"
-  }
+  },
+  "author": "AllRatesToday <info@allratestoday.com> (https://allratestoday.com)"
 }
