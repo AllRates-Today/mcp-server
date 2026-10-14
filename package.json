@@ -1,6 +1,6 @@
 {
   "name": "@allratestoday/mcp-server",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "mcpName": "io.github.cahthuranag/mcp-server",
   "description": "MCP server for AllRatesToday — let AI coding tools (Claude Code, Cursor, Claude Desktop) fetch real-time and historical currency exchange rates.",
   "keywords": [
@@ -13,7 +13,13 @@
     "forex",
     "allratestoday",
     "exchangerate",
-    "exchange rate"
+    "exchange rate",
+    "currency-api",
+    "currency-exchange-rates",
+    "forex-api",
+    "currency-conversion",
+    "currency-exchange",
+    "currency-rates"
   ],
   "license": "MIT",
   "homepage": "https://allratestoday.com",
