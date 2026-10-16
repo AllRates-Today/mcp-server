@@ -57,7 +57,7 @@ async function main() {
         '  AllRatesToday MCP — running in KEYLESS mode.',
         '',
         '  Available now, no key needed:',
-        '    • get_exchange_rate  — official ECB daily reference rate, ~30 major currencies',
+        '    • get_exchange_rate  — official central-bank rate (ECB, else the issuing bank)',
         '    • list_currencies    — all supported currency codes',
         '    • list_central_banks — 121 central banks + 3 tax authorities we carry',
         '    • get_official_rates — latest official table (or one pair) from any of them',
@@ -85,13 +85,14 @@ async function main() {
     {
       title: 'Get live exchange rate',
       description:
-        "Use this when the user asks 'what is X in Y?', 'convert X to Y', 'current rate of EUR/USD', or any single fiat-to-fiat live exchange rate question. Returns the latest mid-market rate as a JSON object like { rate: 0.9234, source } meaning 1 source = 0.9234 target. Does NOT support cryptocurrencies, commodities, or arithmetic on amounts. For multiple targets in one call use get_rates_authenticated; for a past date or fixed lookback (7d/30d/1y) use get_historical_rates.",
+        "Use this when the user asks 'what is X in Y?', 'convert X to Y', 'current rate of EUR/USD', or any single fiat-to-fiat live exchange rate question. Returns the latest mid-market rate as a JSON object like { rate: 0.9234, source } meaning 1 source = 0.9234 target. Without an API key it answers from an official central-bank table instead (ECB first, else the bank that issues one of the two currencies) and says so in `note` — relay the `rate_date`; pairs no single bank publishes (or inverts) need a key. Does NOT support cryptocurrencies, commodities, or arithmetic on amounts. For multiple targets in one call use get_rates_authenticated; for a past date or fixed lookback (7d/30d/1y) use get_historical_rates.",
       inputSchema: { source: ccy, target: ccy },
       outputSchema: {
         rate: z.number().describe('How much 1 unit of source is worth in target'),
         source: z.string().describe('Upstream data provider the rate came from'),
-        // Keyless mode answers from the open ECB reference table and adds the
-        // publication date plus a note the assistant should relay.
+        // Keyless mode answers from an open central-bank table and adds the
+        // bank, publication date plus a note the assistant should relay.
+        bank: z.string().optional(),
         rate_date: z.string().optional(),
         derived: z.boolean().optional(),
         note: z.string().optional(),
@@ -262,7 +263,7 @@ async function main() {
     {
       title: "Get a bank's official published rates",
       description:
-        "OFFICIAL rates a named institution published — 'what is the ECB rate for USD?', 'Bank of Japan rate today', 'HMRC rate for invoicing'. These are the fixed, citable rates for compliance, tax, customs and accounting — NOT live market rates (use get_exchange_rate for those). Omit `date` for the newest published table (no API key needed); give `date` (API key) for the table in force that day — weekends/holidays roll back to the last published date and the response's `rate_date` says which. Omit source/target for the full table; give both for one pair — cross-computed inside the bank's own table when not directly published, flagged `derived`. Always cite the returned `rate_date`.",
+        "OFFICIAL rates a named institution published — 'what is the ECB rate for USD?', 'Bank of Japan rate today', 'HMRC rate for invoicing'. These are the fixed, citable rates for compliance, tax, customs and accounting — NOT live market rates (use get_exchange_rate for those). Omit `date` for the newest published table (no API key needed); give `date` (API key, paid plan) for the table in force that day — weekends/holidays roll back to the last published date and the response's `rate_date` says which. Omit source/target for the full table; give both for one pair — cross-computed inside the bank's own table when not directly published, flagged `derived`. Always cite the returned `rate_date`.",
       inputSchema: {
         bank: z
           .string()
@@ -308,7 +309,7 @@ async function main() {
     {
       title: 'Get the Daily Reference Rate (16:00 London)',
       description:
-        "AllRatesToday's once-a-day, never-revised mid-market rate: the per-currency median of samples in a five-minute window centred on 16:00 London, published each business day. Use it when the user needs ONE reproducible rate per day — index levels, return series, research datasets, month-end reports — rather than a live quote (get_exchange_rate) or an institution's official rate (get_official_rates). Omit source/target for the whole table; give both for one pair (crossed via USD, flagged `derived`). Omit `date` for the latest table (no key needed); give `date` (API key) for a past business day. Not the WM/Refinitiv fix and not a registered benchmark — relay the disclaimer and the `rate_date`.",
+        "AllRatesToday's once-a-day, never-revised mid-market rate: the per-currency median of samples in a five-minute window centred on 16:00 London, published each business day. Use it when the user needs ONE reproducible rate per day — index levels, return series, research datasets, month-end reports — rather than a live quote (get_exchange_rate) or an institution's official rate (get_official_rates). Omit source/target for the whole table; give both for one pair (crossed via USD, flagged `derived`). Omit `date` for the latest table (no key needed); give `date` (API key, paid plan) for a past business day. Not the WM/Refinitiv fix and not a registered benchmark — relay the disclaimer and the `rate_date`.",
       inputSchema: {
         source: ccy.optional().describe('Optional. With target, narrows to one pair.'),
         target: ccy.optional().describe('Optional. With source, narrows to one pair.'),
@@ -316,7 +317,7 @@ async function main() {
           .string()
           .regex(/^\d{4}-\d{2}-\d{2}$/)
           .optional()
-          .describe('Optional past business day, YYYY-MM-DD (API key). Omit for the latest table.'),
+          .describe('Optional past business day, YYYY-MM-DD (API key, paid plan). Omit for the latest table.'),
       },
       outputSchema: {
         rate_date: z.string().describe('Business day the table was fixed on — cite this'),
@@ -346,7 +347,7 @@ async function main() {
     {
       title: 'Request a trial API key',
       description:
-        'Self-issue an AllRatesToday API key with 100 lifetime calls, valid 7 days, with no account and no email. Use it when another tool answered "needs an API key" and the user wants real-time rates, history or dated tables right now. The key is adopted by this server for the rest of the session and returned once — tell the user to put it in the MCP config as ALLRATES_API_KEY to keep it. Capped at 3 keys per IP per day. For a lasting key, register at https://allratestoday.com/register (free, 300 calls) or see https://allratestoday.com/pricing.',
+        'Self-issue an AllRatesToday API key with 100 lifetime calls, valid 7 days, with no account and no email. Use it when another tool answered "needs an API key" and the user wants real-time rates or history right now. The key is adopted by this server for the rest of the session and returned once — tell the user to put it in the MCP config as ALLRATES_API_KEY to keep it. Capped at 3 keys per IP per day. For a lasting key, register at https://allratestoday.com/register (free, 300 calls) or see https://allratestoday.com/pricing.',
       inputSchema: {
         agent: z.string().max(80).optional().describe('Optional: the agent or product requesting the key.'),
         purpose: z.string().max(200).optional().describe('Optional: one line on what the rates are for.'),

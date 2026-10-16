@@ -1,4 +1,5 @@
 import { VERSION } from './version.js';
+import { HOME_BANKS } from './home-banks.js';
 
 const DEFAULT_BASE_URL = 'https://allratestoday.com/api';
 
@@ -25,13 +26,17 @@ export class AllRatesTodayError extends Error {
  * rather than a bare 401.
  */
 export class NeedsKeyError extends AllRatesTodayError {
-  constructor(what: string) {
+  constructor(what: string, paid = false) {
     super(
-      `${what} needs an AllRatesToday API key. The free tier covers it — sign up at ` +
-        'https://allratestoday.com/register (no card, under a minute), then set ALLRATES_API_KEY ' +
-        "in this MCP server's config and restart. Without a key the server still answers " +
-        'get_exchange_rate for ~30 major currencies (official ECB daily reference rate), ' +
-        'list_currencies, list_central_banks and get_official_rates (latest tables).',
+      paid
+        ? `${what} needs an AllRatesToday API key on a paid plan (a free key gets 403 for dated ` +
+            'tables) — see https://allratestoday.com/pricing, then set ALLRATES_API_KEY in this MCP ' +
+            "server's config and restart. The latest table is keyless: omit `date`."
+        : `${what} needs an AllRatesToday API key. The free tier covers it — sign up at ` +
+            'https://allratestoday.com/register (no card, under a minute), then set ALLRATES_API_KEY ' +
+            "in this MCP server's config and restart. Without a key the server still answers " +
+            'get_exchange_rate from official central-bank tables (ECB first, then the issuing bank), ' +
+            'list_currencies, list_central_banks and get_official_rates (latest tables).',
     );
     this.name = 'NeedsKeyError';
   }
@@ -108,7 +113,7 @@ export class AllRatesTodayClient {
   /**
    * Daily Reference Rate: one never-revised mid-market table per business day,
    * fixed at 16:00 London (median of samples in a 5-minute window). Latest
-   * table and single pairs are keyless; a dated table needs the key.
+   * table and single pairs are keyless; a dated table needs a paid-plan key.
    */
   getReferenceRate(params: { source?: string; target?: string; date?: string } = {}) {
     if (Boolean(params.source) !== Boolean(params.target)) {
@@ -116,7 +121,7 @@ export class AllRatesTodayClient {
     }
     const pair = { source: params.source?.toUpperCase(), target: params.target?.toUpperCase() };
     if (params.date) {
-      if (this.keyless) return Promise.reject(new NeedsKeyError(`The reference-rate table for ${params.date}`));
+      if (this.keyless) return Promise.reject(new NeedsKeyError(`The reference-rate table for ${params.date}`, true));
       return this.request<Record<string, unknown>>(`/v1/reference-rate/${encodeURIComponent(params.date)}`, pair);
     }
     return this.request<Record<string, unknown>>('/open/reference-rate', pair);
@@ -160,27 +165,49 @@ export class AllRatesTodayClient {
     };
   }
 
-  getRate(source: string, target: string) {
-    // Keyless: fall back to the open, edge-cached ECB reference table. It is
-    // the official daily fixing rather than a live mid-market quote and covers
-    // ~30 majors, so the result is labelled for the model to relay honestly.
+  async getRate(source: string, target: string) {
+    // Keyless: answer from the open, edge-cached official tables. The ECB
+    // reference table goes first; when it does not cover the pair, the central
+    // bank that issues one of the two currencies almost always does (same
+    // order as the hosted /api/mcp server). Each answer is an official print
+    // with a publication date, not a live quote, so it is labelled for the
+    // model to relay honestly; `derived` is passed through from the API (true
+    // for an inverse or a cross inside that bank's own table).
     if (this.keyless) {
-      return this.request<{
-        bank: string;
-        rate_date: string;
-        rate: number;
-        derived?: boolean;
-      }>('/open/central-bank/ecb', { source, target }).then((r) => ({
-        rate: r.rate,
-        source: 'ECB official daily reference rate (keyless mode)',
-        rate_date: r.rate_date,
-        derived: r.derived ?? false,
-        note:
-          'Keyless mode: this is the European Central Bank reference rate published on ' +
-          `${r.rate_date}, not a live mid-market quote, and covers ~30 major currencies. ` +
-          'For real-time rates across 160+ currencies set ALLRATES_API_KEY — free tier at ' +
-          'https://allratestoday.com/register.',
-      }));
+      const candidates: Array<{ code: string; name: string }> = [{ code: 'ecb', name: 'European Central Bank' }];
+      for (const c of [target, source]) {
+        const home = HOME_BANKS[c];
+        if (home && !candidates.some((x) => x.code === home.code)) candidates.push(home);
+      }
+      let lastErr: unknown;
+      for (const bank of candidates) {
+        try {
+          const r = await this.request<{ bank: string; rate_date: string; rate: number; derived?: boolean }>(
+            `/open/central-bank/${bank.code}`,
+            { source, target },
+          );
+          return {
+            rate: r.rate,
+            source: `${bank.name} official rate (keyless mode)`,
+            bank: bank.code,
+            rate_date: r.rate_date,
+            derived: r.derived ?? false,
+            note:
+              `Keyless mode: this is the ${bank.name} official rate published on ${r.rate_date}, ` +
+              'not a live mid-market quote. For real-time rates across 160+ currencies set ' +
+              'ALLRATES_API_KEY — free tier at https://allratestoday.com/register.',
+          };
+        } catch (err) {
+          lastErr = err;
+          if (!(err instanceof AllRatesTodayError && err.status === 404)) throw err;
+        }
+      }
+      throw new AllRatesTodayError(
+        `No keyless official source covers ${source}/${target}. Real-time rates for 160+ currencies ` +
+          'need an API key — set ALLRATES_API_KEY (free tier at https://allratestoday.com/register).' +
+          (lastErr instanceof AllRatesTodayError ? ` Last upstream error: ${lastErr.message}` : ''),
+        404,
+      );
     }
     return this.request<{ rate: number; source: string }>('/rate', { source, target });
   }
@@ -221,7 +248,7 @@ export class AllRatesTodayClient {
   /**
    * Latest OFFICIAL table published by a central bank or tax authority, or one
    * pair from it (cross-computed inside the bank's own table when not published
-   * directly, flagged `derived`). Keyless; a dated table needs the key.
+   * directly, flagged `derived`). Keyless; a dated table needs a paid-plan key.
    */
   getOfficialRates(bank: string, params: { date?: string; source?: string; target?: string } = {}) {
     const code = bank.trim().toLowerCase();
@@ -233,7 +260,7 @@ export class AllRatesTodayClient {
     }
     const pair = { source: params.source?.toUpperCase(), target: params.target?.toUpperCase() };
     if (this.keyless) {
-      if (params.date) return Promise.reject(new NeedsKeyError(`The ${code} table for ${params.date}`));
+      if (params.date) return Promise.reject(new NeedsKeyError(`The ${code} table for ${params.date}`, true));
       return this.request<Record<string, unknown>>(`/open/central-bank/${encodeURIComponent(code)}`, pair);
     }
     return this.request<Record<string, unknown>>(

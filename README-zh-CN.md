@@ -7,6 +7,8 @@
 
 [English](./README.md) | 简体中文
 
+> **注意：** 本中文文档部分内容仍停留在早期版本。当前版本（0.7.x）提供 8 个工具（托管端点 https://allratestoday.com/api/mcp 提供 11 个），**无需 API 密钥即可启动**（无密钥模式），完整且最新的说明请以 [英文 README](./README.md) 为准。
+
 > 让你的 AI 编程助手获得通往外汇市场的实时窗口。
 
 一个 Model Context Protocol（模型上下文协议）服务器，让 **Claude Code**、**Cursor**、**Claude Desktop**、**Windsurf** 以及任何其他 MCP 兼容客户端都能从 [AllRatesToday API](https://allratestoday.com) 获取实时货币汇率、历史数据和多币种查询。
@@ -62,7 +64,7 @@
 
 ## 获取 API 密钥（必需）
 
-未设置有效的 `ALLRATES_API_KEY` 时，**服务器无法启动**。免费密钥已足够开发与个人使用 — **无需信用卡**。
+未设置 `ALLRATES_API_KEY` 时，服务器以**无密钥模式**启动并照常运行（`get_exchange_rate` 返回央行官方汇率），不会退出。免费密钥共 300 次请求（终身额度，不会每月重置）— **无需信用卡**。按日期查询的官方汇率表需要付费套餐。
 
 1. 访问 [allratestoday.com/register](https://allratestoday.com/register) 注册（30 秒完成）
 2. 验证邮箱
@@ -187,7 +189,7 @@ npx -y @allratestoday/mcp-server
 
 完成客户端配置后，按以下顺序进行测试：
 
-1. **服务器成功启动** — 打开客户端，如果 MCP 集成显示红点或"连接失败"，则 API 密钥缺失或错误（参见[故障排查](#故障排查)）。
+1. **服务器成功启动** — 无论是否设置密钥，服务器都能启动。如果 MCP 集成显示红点或"连接失败"，通常是 `npx` 无法运行或 Node 版本低于 18（参见[故障排查](#故障排查)）。
 
 2. **工具已被识别** — 大多数客户端有"工具"或"MCP"面板，应能看到：
    - `get_exchange_rate`
@@ -205,7 +207,7 @@ npx -y @allratestoday/mcp-server
 
 ## 工具说明
 
-所有 4 个工具都需要 `ALLRATES_API_KEY`。
+以下仅列出 4 个核心工具（完整的 8 个工具见[英文 README](./README.md#-tools-reference)）。`get_historical_rates` 与 `get_rates_authenticated` 需要 `ALLRATES_API_KEY`（免费密钥即可）；`get_exchange_rate` 与 `list_currencies` 无密钥也可使用。
 
 ### `get_exchange_rate`
 
@@ -227,7 +229,7 @@ npx -y @allratestoday/mcp-server
 **响应示例**
 
 ```json
-{ "rate": 0.92145, "source": "wise" }
+{ "rate": 0.888889, "source": "interbank" }
 ```
 
 ### `get_historical_rates`
@@ -265,8 +267,8 @@ npx -y @allratestoday/mcp-server
   "target": "INR",
   "period": "30d",
   "data": [
-    { "date": "2026-03-27T00:00:00Z", "rate": 83.42, "timestamp": 1743033600000 },
-    { "date": "2026-03-28T00:00:00Z", "rate": 83.51, "timestamp": 1743120000000 },
+    { "date": "2026-09-17", "rate": 96.1006, "timestamp": 1789603200000 },
+    { "date": "2026-09-18", "rate": 95.8142, "timestamp": 1789689600000 },
     "..."
   ]
 }
@@ -294,11 +296,13 @@ npx -y @allratestoday/mcp-server
 **响应示例**
 
 ```json
-[
-  { "rate": 0.9214, "source": "USD", "target": "EUR", "time": "2026-04-26T11:00:00Z" },
-  { "rate": 0.7891, "source": "USD", "target": "GBP", "time": "2026-04-26T11:00:00Z" },
-  { "rate": 151.34, "source": "USD", "target": "JPY", "time": "2026-04-26T11:00:00Z" }
-]
+{
+  "rates": [
+    { "rate": 0.888889, "source": "USD", "target": "EUR", "time": "2026-10-16T12:16:01+0000" },
+    { "rate": 0.749766, "source": "USD", "target": "GBP", "time": "2026-10-16T12:16:01+0000" },
+    { "rate": 157.985, "source": "USD", "target": "JPY", "time": "2026-10-16T12:16:01+0000" }
+  ]
+}
 ```
 
 ### `list_currencies`
@@ -317,7 +321,7 @@ npx -y @allratestoday/mcp-server
     { "code": "GBP", "name": "British Pound", "symbol": "£" },
     "..."
   ],
-  "count": 162
+  "count": 163
 }
 ```
 
@@ -344,9 +348,9 @@ npx -y @allratestoday/mcp-server
 
 | 现象 | 可能原因 | 解决方法 |
 |---|---|---|
-| 客户端提示"MCP 服务器启动失败"或显示红点 | `ALLRATES_API_KEY` 未设置或不正确 | 在客户端配置中核对密钥；确认与控制台显示一致 |
+| 客户端提示"MCP 服务器启动失败"或显示红点 | 与密钥无关（0.5.0 起无密钥也能启动），通常是 `npx` 无法访问 npm 或 Node 版本低于 18 | 在终端运行 `npx -y @allratestoday/mcp-server` 查看 stderr |
 | 工具显示出来，但每次调用都返回 "Invalid AllRatesToday API key" | 密钥格式错误（前缀缺失、被截断、或已撤销） | 在控制台重新复制完整密钥 |
-| 工具返回 "AllRatesToday API quota exceeded" | 已超出免费套餐月度限额 | 等待下个月或升级套餐 |
+| 工具返回 "AllRatesToday API quota exceeded" | 额度已用完 — 免费套餐为 300 次终身额度，不会重置 | 在 [/pricing](https://allratestoday.com/pricing) 升级套餐 |
 | 历史工具返回 "Bad request" | period 参数无效或货币代码错误 | period 必须为 `1d`/`7d`/`30d`/`1y`；货币代码必须为 3 个字母 |
 | 服务器启动了但客户端始终看不到工具 | 客户端未在配置变更后重新加载 | 完全退出（不仅是关闭窗口）然后重新打开客户端 |
 | 直接运行 `npx` 时进程一直挂起 | 服务器在等待 MCP 客户端连接 — 这是正常行为 | 不要从 shell 直接运行；让 MCP 客户端启动它 |

@@ -17,7 +17,7 @@ function stubFetch(status, body, capture = {}) {
 test('success returns parsed body', async () => {
   const client = new AllRatesTodayClient({
     apiKey: 'k',
-    fetchImpl: stubFetch(200, { rate: 0.92, source: 'wise' }),
+    fetchImpl: stubFetch(200, { rate: 0.92, source: 'interbank' }),
   });
   const res = await client.getRate('USD', 'EUR');
   assert.equal(res.rate, 0.92);
@@ -161,4 +161,85 @@ test('getReferenceRate: open path keyless, dated path needs key', async () => {
   const keyed = new AllRatesTodayClient({ apiKey: 'k', fetchImpl: stubFetch(200, {}, capture) });
   await keyed.getReferenceRate({ date: '2026-10-12' });
   assert.match(capture.url, /\/api\/v1\/reference-rate\/2026-10-12$/);
+});
+
+function routeFetch(routes, calls) {
+  return async (url) => {
+    calls.push(url);
+    const u = new URL(url);
+    const hit = routes[u.pathname];
+    const [status, body] = hit ?? [404, { error: 'not found' }];
+    return { ok: status >= 200 && status < 300, status, text: async () => JSON.stringify(body) };
+  };
+}
+
+test('keyless getRate falls back from ECB to the issuing central bank (USD/GBP via BoE, derived)', async () => {
+  const calls = [];
+  const client = new AllRatesTodayClient({
+    fetchImpl: routeFetch(
+      {
+        '/api/open/central-bank/ecb': [404, { error: 'ecb does not publish a rate covering USD/GBP' }],
+        '/api/open/central-bank/boe': [200, { bank: 'boe', rate_date: '2026-10-14', rate: 0.7598784195, derived: true }],
+      },
+      calls,
+    ),
+  });
+  const res = await client.getRate('USD', 'GBP');
+  assert.equal(calls.length, 2);
+  assert.match(calls[0], /\/open\/central-bank\/ecb\?source=USD&target=GBP$/);
+  assert.match(calls[1], /\/open\/central-bank\/boe\?source=USD&target=GBP$/);
+  assert.equal(res.bank, 'boe');
+  assert.equal(res.rate, 0.7598784195);
+  assert.equal(res.derived, true);
+  assert.equal(res.rate_date, '2026-10-14');
+  assert.match(res.source, /Bank of England official rate \(keyless mode\)/);
+});
+
+test('keyless getRate tries the target-currency bank before the source-currency bank', async () => {
+  const calls = [];
+  const client = new AllRatesTodayClient({
+    fetchImpl: routeFetch(
+      {
+        '/api/open/central-bank/fed': [200, { bank: 'fed', rate_date: '2026-10-09', rate: 88.7 }],
+        '/api/open/central-bank/rbi': [200, { bank: 'rbi', rate_date: '2026-10-16', rate: 95.0194, derived: false }],
+      },
+      calls,
+    ),
+  });
+  const res = await client.getRate('USD', 'INR');
+  assert.deepEqual(calls.map((u) => new URL(u).pathname.split('/').pop()), ['ecb', 'rbi']);
+  assert.equal(res.bank, 'rbi');
+  assert.equal(res.derived, false);
+});
+
+test('keyless getRate refuses a pair no single bank covers, with a key hint', async () => {
+  const calls = [];
+  const client = new AllRatesTodayClient({ fetchImpl: routeFetch({}, calls) });
+  await assert.rejects(
+    () => client.getRate('GBP', 'JPY'),
+    (err) =>
+      err instanceof AllRatesTodayError &&
+      err.status === 404 &&
+      /No keyless official source covers GBP\/JPY[\s\S]*ALLRATES_API_KEY/.test(err.message),
+  );
+  assert.deepEqual(calls.map((u) => new URL(u).pathname.split('/').pop()), ['ecb', 'boj', 'boe']);
+});
+
+test('keyless getRate does not swallow non-404 upstream errors', async () => {
+  const calls = [];
+  const client = new AllRatesTodayClient({
+    fetchImpl: routeFetch({ '/api/open/central-bank/ecb': [500, { error: 'upstream down' }] }, calls),
+  });
+  await assert.rejects(() => client.getRate('USD', 'GBP'), (err) => err.status === 500);
+  assert.equal(calls.length, 1);
+});
+
+test('keyless dated official/reference tables say a paid plan is needed', async () => {
+  const client = new AllRatesTodayClient({
+    fetchImpl: () => {
+      throw new Error('should not be called');
+    },
+  });
+  await assert.rejects(() => client.getOfficialRates('ecb', { date: '2026-09-01' }), /paid plan/);
+  await assert.rejects(() => client.getReferenceRate({ date: '2026-09-01' }), /paid plan/);
 });
