@@ -35,7 +35,7 @@ It covers the REST API, the official SDKs, and the MCP server (`@allratestoday/m
 - Key format: `art_live_…`. Store it in the `ALLRATES_API_KEY` environment variable.
 - Load it from `process.env` / `os.environ` / `$_ENV` — never inline it in source.
 - For browser apps, proxy through your own backend; the browser must never see the key.
-- The keyless open endpoint (`/api/rate`) needs no key but requires visible attribution
+- The keyless open endpoints (`/api/open/*`, `/api/v1/symbols`, `/api/compat/*`) need no key
   (see "Open endpoint & attribution").
 
 ```bash
@@ -45,11 +45,11 @@ ALLRATES_API_KEY=art_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### Choosing the Right Endpoint
 
-- **Single live pair** → `GET /api/v1/rates?source=USD&targets=EUR` (authenticated) or the
-  keyless `GET /api/rate?source=USD&target=EUR`.
-- **Multiple targets in one call** → `GET /api/v1/rates?source=USD&targets=EUR,GBP,JPY`.
+- **Single live pair** → `GET /api/v1/rates?source=USD&target=EUR` (free key or above).
+- **Multiple targets in one call** → `GET /api/v1/rates?source=USD&target=EUR,GBP,JPY`.
   Prefer one multi-target call over N single calls — it costs one request, not N.
-- **Historical / time series** → add `from`, `to`, and `group=day|week|month`.
+- **Historical / time series** → add `from`, `to`, and `group=day|week|month`. **Paid plans only** —
+  free and trial keys get `403 historical_requires_paid_plan`; one request spans at most 366 days.
 - **List supported currencies** → `GET /api/v1/symbols` → `{ currencies: [{ code, name, symbol }] }`.
 - Send the API key as a bearer token: `Authorization: Bearer art_live_…`.
 
@@ -75,7 +75,7 @@ let syms   = client.symbols()?;                                    // supported 
 ```
 
 - Methods: `latest`, `for_date`, `time_series`, `convert`, `get_rate`,
-  `get_historical_rates`, `symbols`. Construct the client once and reuse it.
+  `get_historical_rates`, `symbols` (`for_date`, `time_series` and `get_historical_rates` need a paid plan). Construct the client once and reuse it.
 
 **JS/TS, Python, PHP, Go, etc.** — there is no first-party package for these yet. Call the
 REST API directly (key stays server-side), or use the MCP server (next section) for AI agents:
@@ -83,10 +83,10 @@ REST API directly (key stays server-side), or use the MCP server (next section) 
 ```ts
 // JS/TS — call the REST API directly
 const res = await fetch(
-  'https://allratestoday.com/api/v1/rates?source=USD&targets=EUR,GBP',
+  'https://allratestoday.com/api/v1/rates?source=USD&target=EUR,GBP',
   { headers: { Authorization: `Bearer ${process.env.ALLRATES_API_KEY}` } }
 )
-const { data } = await res.json()
+const rows = await res.json() // [{ source, target, rate, time }, ...]
 ```
 
 ### MCP Server (AI agents in Cursor / Claude)
@@ -110,13 +110,13 @@ Exposed tools:
 | Tool | Purpose |
 |---|---|
 | `get_exchange_rate` | Current mid-market rate between two currencies (`source`, `target`) |
-| `get_historical_rates` | Historical data for a pair over `1d` / `7d` / `30d` / `1y` |
-| `get_rates_authenticated` | Multi-target rates with date ranges and grouping (`day`/`week`/`month`) |
+| `get_historical_rates` | Historical data for a pair over `1d` / `7d` / `30d` / `1y` (paid-plan key) |
+| `get_rates_authenticated` | Multi-target rates, optional point-in-time `time` (paid plan) and grouping |
 | `list_currencies` | List all 160+ supported currencies |
 
 - Restart Cursor after editing `mcp.json`. Verified working with Cursor 0.40+.
-- The server fails fast without `ALLRATES_API_KEY` and prints registration instructions —
-  set the key first.
+- Without `ALLRATES_API_KEY` the server runs in keyless mode (official central-bank rates);
+  set a key for real-time mid-market rates.
 
 ### Error Handling & Resilience
 
@@ -133,7 +133,7 @@ Exposed tools:
 
 - Cache rates for **at least 60 seconds** (the refresh cadence). Key the cache by `source:target`.
 - For dashboards, fetch on an interval (every 60–300s), not per component render.
-- Batch with `targets=` to convert many currencies in a single request.
+- Batch with a comma-separated `target=` to convert many currencies in a single request.
 
 ### Currency & Amount Handling
 
@@ -150,16 +150,18 @@ Exposed tools:
 
 ### Open Endpoint & Attribution
 
-- `GET /api/rate?source=USD&target=EUR` is **keyless, CORS-enabled, free**, and ideal for
-  static sites, demos, and client-side widgets.
-- In return it requires a **visible attribution link**:
+- Only the keyless endpoints send CORS headers and work from browser code:
+  `GET /api/open/central-bank/{bank}?source=EUR&target=USD` (latest official tables),
+  `GET /api/v1/symbols` and the `/api/compat/*` ECB drop-ins. Ideal for static sites and demos.
+- A **visible attribution link** is appreciated:
   `<a href="https://allratestoday.com">Rates by AllRatesToday</a>`.
-- For production apps wanting dedicated quota, historical data, and no attribution, use a
-  free API key. See https://allratestoday.com/open-api/.
+- The keyed `/api/v1/*` endpoints send **no CORS headers** — call them from your own backend.
+  Real-time rates need a free key; history and dated rates need a paid plan.
+  See https://allratestoday.com/open-api/.
 
 ### Plans
 
-- Free tier available · Small — €4.99/mo, 5,000 · Medium — €9.99/mo, 10,000 ·
+- Free tier (300 requests lifetime, latest rates only) · Small — €4.99/mo, 5,000 · Medium — €9.99/mo, 10,000 ·
   Large — €49.99/mo, 100,000. Full pricing: https://allratestoday.com/pricing
 
 ### Links

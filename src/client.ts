@@ -231,7 +231,11 @@ export class AllRatesTodayClient {
     group?: 'hour' | 'day' | 'week' | 'month';
   }) {
     if (this.keyless)
-      return Promise.reject(new NeedsKeyError('Multi-target and point-in-time rates'));
+      return Promise.reject(
+        params.time
+          ? new NeedsKeyError('Point-in-time rates', true)
+          : new NeedsKeyError('Multi-target rates'),
+      );
     return this.request<
       Array<{ rate: number; source: string; target: string; time: string }>
     >('/v1/rates', params);

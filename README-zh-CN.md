@@ -54,7 +54,7 @@
 |---|---|
 | **货币种类** | 160+ 种 ISO 4217 货币代码，覆盖所有主要货币和大部分小币种 |
 | **更新频率** | 中间价大约每 60 秒刷新一次 |
-| **数据来源** | 机构级银行间市场数据 |
+| **数据来源** | 实时中间价（mid-market） |
 | **历史深度** | 最长 1 年，提供 `1d` / `7d` / `30d` / `1y` 四种时间粒度 |
 | **暴露的工具** | 6 个 — `get_exchange_rate`、`get_historical_rates`、`get_rates_authenticated`、`list_currencies`、`list_central_banks`、`get_official_rates`（央行/税务机关官方汇率，无需密钥） |
 | **传输方式** | stdio（子进程），兼容 MCP 1.x |
@@ -64,7 +64,7 @@
 
 ## 获取 API 密钥（必需）
 
-未设置 `ALLRATES_API_KEY` 时，服务器以**无密钥模式**启动并照常运行（`get_exchange_rate` 返回央行官方汇率），不会退出。免费密钥共 300 次请求（终身额度，不会每月重置）— **无需信用卡**。按日期查询的官方汇率表需要付费套餐。
+未设置 `ALLRATES_API_KEY` 时，服务器以**无密钥模式**启动并照常运行（`get_exchange_rate` 返回央行官方汇率），不会退出。免费密钥共 300 次请求（终身额度，不会每月重置）— **无需信用卡**。所有历史与按日期查询的数据（中间价历史、时间点查询、按日期的官方汇率表与参考汇率表）均需要付费套餐；免费密钥与试用密钥会收到 `403 historical_requires_paid_plan`。
 
 1. 访问 [allratestoday.com/register](https://allratestoday.com/register) 注册（30 秒完成）
 2. 验证邮箱
@@ -207,7 +207,7 @@ npx -y @allratestoday/mcp-server
 
 ## 工具说明
 
-以下仅列出 4 个核心工具（完整的 8 个工具见[英文 README](./README.md#-tools-reference)）。`get_historical_rates` 与 `get_rates_authenticated` 需要 `ALLRATES_API_KEY`（免费密钥即可）；`get_exchange_rate` 与 `list_currencies` 无密钥也可使用。
+以下仅列出 4 个核心工具（完整的 8 个工具见[英文 README](./README.md#-tools-reference)）。`get_historical_rates` 与 `get_rates_authenticated` 需要 `ALLRATES_API_KEY`：`get_rates_authenticated` 的最新汇率免费密钥即可，`get_historical_rates` 及带 `time` 的查询需要付费套餐；`get_exchange_rate` 与 `list_currencies` 无密钥也可使用。
 
 ### `get_exchange_rate`
 
@@ -229,12 +229,12 @@ npx -y @allratestoday/mcp-server
 **响应示例**
 
 ```json
-{ "rate": 0.888889, "source": "interbank" }
+{ "rate": 0.888889, "source": "mid-market" }
 ```
 
 ### `get_historical_rates`
 
-某币种对在固定周期内的历史时间序列数据。
+某币种对在固定周期内的历史时间序列数据。需要付费套餐的 API 密钥（免费密钥与试用密钥返回 403）。
 
 **输入参数**
 
@@ -284,7 +284,7 @@ npx -y @allratestoday/mcp-server
 |---|---|---|---|
 | `source` | string | 是 | 源货币代码 |
 | `target` | string | 是 | 一个或多个目标货币代码，逗号分隔（`EUR,GBP,JPY`） |
-| `time` | string（ISO 8601） | 否 | 历史时间点 |
+| `time` | string（ISO 8601） | 否 | 历史时间点（付费套餐） |
 | `group` | string | 否 | `hour` / `day` / `week` / `month` 之一 |
 
 **调用示例**
@@ -340,7 +340,7 @@ npx -y @allratestoday/mcp-server
 
 ## 套餐
 
-提供免费套餐与付费套餐。当前配额详见 [allratestoday.com/pricing](https://allratestoday.com/pricing)。所有套餐的货币覆盖与历史深度一致 — 仅请求配额不同。
+提供免费套餐与付费套餐。当前配额详见 [allratestoday.com/pricing](https://allratestoday.com/pricing)。免费套餐（300 次终身额度）与试用密钥只提供最新汇率；历史与按日期查询的数据仅限付费套餐。
 
 ---
 

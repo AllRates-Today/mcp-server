@@ -17,7 +17,7 @@ function stubFetch(status, body, capture = {}) {
 test('success returns parsed body', async () => {
   const client = new AllRatesTodayClient({
     apiKey: 'k',
-    fetchImpl: stubFetch(200, { rate: 0.92, source: 'interbank' }),
+    fetchImpl: stubFetch(200, { rate: 0.92, source: 'mid-market' }),
   });
   const res = await client.getRate('USD', 'EUR');
   assert.equal(res.rate, 0.92);
@@ -107,7 +107,11 @@ test('keyless metered tools explain how to get a free key, without calling out',
   );
   await assert.rejects(
     () => client.getAuthenticatedRates({ source: 'USD', target: 'EUR' }),
-    /needs an AllRatesToday API key/,
+    /needs an AllRatesToday API key\. The free tier covers it/,
+  );
+  await assert.rejects(
+    () => client.getAuthenticatedRates({ source: 'USD', target: 'EUR', time: '2025-03-14T12:00:00Z' }),
+    /Point-in-time rates needs an AllRatesToday API key on a paid plan/,
   );
 });
 

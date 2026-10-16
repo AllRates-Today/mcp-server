@@ -231,7 +231,7 @@ Current mid-market rate between two currencies.
 **Response (with a key):**
 
 ```json
-{ "rate": 0.888889, "source": "interbank" }
+{ "rate": 0.888889, "source": "mid-market" }
 ```
 
 **Response (keyless — `USD` → `GBP`, not in the ECB table, so the Bank of England table answers):**
@@ -433,14 +433,14 @@ Self-issues an API key with 100 lifetime calls, valid 7 days, with no account an
 
 | Variable | Default | Required | Purpose |
 |---|---|---|---|
-| `ALLRATES_API_KEY` | — | no | Your API key, sent as `Authorization: Bearer`. Unset ⇒ keyless mode (see above); set ⇒ real-time rates and the historical tools. |
+| `ALLRATES_API_KEY` | — | no | Your API key, sent as `Authorization: Bearer`. Unset ⇒ keyless mode (see above); set ⇒ real-time rates and multi-target lookups (the historical tools need a paid-plan key). |
 | `ALLRATES_BASE_URL` | `https://allratestoday.com/api` | no | Override for self-hosted or staging deployments. |
 
 Set these in your MCP client's config (in the `env` block) — not in your shell — because MCP servers are launched as subprocesses with isolated environments.
 
 ## 💳 Plans
 
-A free tier and paid plans are available — see [allratestoday.com/pricing](https://allratestoday.com/pricing) for current quotas. The free tier is 300 requests, lifetime (it never resets), and covers real-time rates, mid-market history and multi-target lookups. Dated official and reference-rate tables need a paid plan. The Official Rates plan covers official central-bank and tax-authority rates only (no market rates).
+A free tier and paid plans are available — see [allratestoday.com/pricing](https://allratestoday.com/pricing) for current quotas. The free tier is 300 requests, lifetime (it never resets), and covers real-time rates and multi-target lookups. All history and dated rates — mid-market history, point-in-time lookups, dated official and reference-rate tables — need a paid plan (free and trial keys get `403 historical_requires_paid_plan`). The Official Rates plan covers official central-bank and tax-authority rates only (no market rates).
 
 ## 🛠️ Troubleshooting
 
@@ -449,6 +449,7 @@ A free tier and paid plans are available — see [allratestoday.com/pricing](htt
 | Client shows "MCP server failed to start" or red dot | Not a missing key — 0.5.0+ starts fine without one. Usually `npx` cannot reach the registry, or Node is older than 18 | Run `npx -y @allratestoday/mcp-server` in a shell and read stderr |
 | Rates look like yesterday's, response mentions "keyless mode" | No key set, so answers come from an official central-bank table (see `bank` and `rate_date`) | Set `ALLRATES_API_KEY` for real-time mid-market rates |
 | `No keyless official source covers X/Y` | Keyless mode, and no single central bank publishes that pair or its inverse | Set `ALLRATES_API_KEY` (free) |
+| `HTTP 403 — Historical rates require a paid plan` | `get_historical_rates`, or `time` on `get_rates_authenticated`, on a free or trial key | Upgrade at /pricing — history is paid-only |
 | `HTTP 403 — Historical central bank rates require a paid plan` | `date` given to `get_official_rates` / `get_reference_rate` on a free key | Omit `date` for the latest table, or upgrade at /pricing |
 | Every call returns "Invalid AllRatesToday API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
 | Tools return "AllRatesToday API quota exceeded" | Quota used up — the free tier is 300 requests lifetime and never resets; paid plans are monthly | Upgrade at [/pricing](https://allratestoday.com/pricing) |
@@ -534,6 +535,7 @@ server.json       # MCP registry manifest
 
 See [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases) for the full list. Recent highlights:
 
+- **0.7.6** — Keyless `get_rates_authenticated` with `time` now says a paid plan is needed; README: free tier no longer listed as covering history, `source` example is `mid-market`
 - **0.7.4** — Keyless `get_exchange_rate` falls back from the ECB table to the central bank that issues the target or source currency (USD/GBP, GBP/JPY, USD/INR now answer keyless), same as the hosted endpoint; response adds `bank`. Dated-table errors say a paid plan is needed. README: real response shapes, tool counts, 300-lifetime free tier
 - **0.7.0** — `get_reference_rate` (Daily Reference Rate, 16:00 London, keyless latest table) and `request_trial_key` (self-issued 100-call trial key adopted for the session)
 - **0.6.1** — README: Claude Code plugin and hosted `/api/mcp` endpoint cross-links; coverage wording refreshed
