@@ -29,9 +29,10 @@ export class NeedsKeyError extends AllRatesTodayError {
   constructor(what: string, paid = false) {
     super(
       paid
-        ? `${what} needs an AllRatesToday API key on a paid plan (a free key gets 403 for dated ` +
-            'tables) — see https://allratestoday.com/pricing, then set ALLRATES_API_KEY in this MCP ' +
-            "server's config and restart. The latest table is keyless: omit `date`."
+        ? `${what} needs an AllRatesToday API key on a paid plan (from €4.99/month; free and trial ` +
+            'keys get 403 for historical rates and dated tables) — see https://allratestoday.com/pricing, ' +
+            "then set ALLRATES_API_KEY in this MCP server's config and restart. Latest rates and the latest " +
+            'official tables need no paid plan.'
         : `${what} needs an AllRatesToday API key. The free tier covers it — sign up at ` +
             'https://allratestoday.com/register (no card, under a minute), then set ALLRATES_API_KEY ' +
             "in this MCP server's config and restart. Without a key the server still answers " +
@@ -213,7 +214,7 @@ export class AllRatesTodayClient {
   }
 
   getHistoricalRates(source: string, target: string, period: '1d' | '7d' | '30d' | '1y' = '7d') {
-    if (this.keyless) return Promise.reject(new NeedsKeyError('Historical time-series'));
+    if (this.keyless) return Promise.reject(new NeedsKeyError('Historical time-series', true));
     return this.request<{
       source: string;
       target: string;

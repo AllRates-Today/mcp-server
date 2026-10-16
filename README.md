@@ -45,7 +45,7 @@ Install it with no configuration at all and it starts, connects, and answers:
 | `get_official_rates` | ✅ | Latest **official table** (or one pair) published by any of them. A dated table needs a paid-plan key. |
 | `get_reference_rate` | ✅ | The **Daily Reference Rate**: one never-revised table per business day, fixed at 16:00 London. A past date needs a paid-plan key. |
 | `request_trial_key` | ✅ | Self-issues a 100-call, 7-day key with no account and adopts it for the session. |
-| `get_historical_rates` | 🔑 | Returns one sentence explaining how to get a free key. |
+| `get_historical_rates` | 🔑 | Returns one sentence explaining how to get a key. Needs a paid plan. |
 | `get_rates_authenticated` | 🔑 | Same. |
 
 The keyless path reads the open, edge-cached `/api/open/central-bank/{bank}`
@@ -53,11 +53,11 @@ endpoints — no upstream cost, no rate limit to trip over, nothing to sign up f
 
 ## 🔑 Get your API key (free)
 
-A key unlocks **real-time mid-market rates across 160+ currencies**, historical
-series, and multi-target / point-in-time lookups. The free tier (300 requests,
-lifetime — it does not reset monthly) is enough for development and trying it
-out — **no credit card required**. Dated official and reference-rate tables need
-a paid plan.
+A key unlocks **real-time mid-market rates across 160+ currencies** and
+multi-target lookups. The free tier (300 requests, lifetime — it does not reset
+monthly) is enough for development and trying it out — **no credit card required**.
+Historical series, point-in-time lookups and dated official and reference-rate
+tables need a paid plan from €4.99/month.
 
 1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
 2. Verify your email
@@ -207,7 +207,7 @@ After configuring your client, test in this order:
 - [`get_reference_rate`](#get_reference_rate) — the Daily Reference Rate, one fixed mid-market table per business day (16:00 London)
 - [`request_trial_key`](#request_trial_key) — self-issue a 100-call, 7-day trial key, no account needed
 
-`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY` (free tier is enough); the other six of the eight work keyless.
+`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY`; the other six of the eight work keyless. History (`get_historical_rates`, and `time` on `get_rates_authenticated`) needs a paid plan.
 
 ---
 
@@ -251,7 +251,7 @@ Current mid-market rate between two currencies.
 
 ### `get_historical_rates`
 
-Time-series data points for a currency pair over a fixed period.
+Time-series data points for a currency pair over a fixed period. Needs an API key on a paid plan (free and trial keys get a 403).
 
 **Input**
 
@@ -302,7 +302,7 @@ Multiple targets in one call, with optional historical timestamp or grouping win
 |---|---|---|---|
 | `source` | string | yes | Source currency code |
 | `target` | string | yes | One or more codes, comma-separated (`EUR,GBP,JPY`) |
-| `time` | string (ISO 8601) | no | Historical point in time |
+| `time` | string (ISO 8601) | no | Historical point in time (paid plans) |
 | `group` | string | no | One of `hour`, `day`, `week`, `month` |
 
 **Example call**

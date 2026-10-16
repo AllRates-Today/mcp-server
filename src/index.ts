@@ -64,8 +64,8 @@ async function main() {
         '    • get_reference_rate — Daily Reference Rate, one fixed table per business day (16:00 London)',
         '    • request_trial_key  — self-issue a 100-call, 7-day key without an account',
         '',
-        '  Needs a free API key (real-time mid-market rates for 160+ currencies,',
-        '  historical series, multi-target and point-in-time lookups):',
+        '  Needs a free API key (real-time mid-market rates for 160+ currencies and',
+        '  multi-target lookups). Historical series and point-in-time lookups need a paid plan:',
         '    1. https://allratestoday.com/register — free tier, no card, under a minute',
         '    2. Add to this server\'s MCP config:  "env": { "ALLRATES_API_KEY": "art_live_..." }',
         '',
@@ -113,7 +113,7 @@ async function main() {
     {
       title: 'Get historical rate time-series',
       description:
-        "Use this for fixed-window time-series questions like 'how has EUR/USD moved this week', 'show me the last month of GBP/JPY', or 'chart 1-year history of AUD/USD'. Returns { source, target, period, data: [{ date, rate, timestamp }, ...] } — sampling is fixed per period (1d=hourly, 7d/30d=daily, 1y=weekly) and the window always ends NOW. For a specific past datetime use get_rates_authenticated with `time`. For a single live rate use get_exchange_rate.",
+        "Use this for fixed-window time-series questions like 'how has EUR/USD moved this week', 'show me the last month of GBP/JPY', or 'chart 1-year history of AUD/USD'. Returns { source, target, period, data: [{ date, rate, timestamp }, ...] } — sampling is fixed per period (1d=hourly, 7d/30d=daily, 1y=weekly) and the window always ends NOW. Needs an API key on a paid plan; free and trial keys get a 403. For a specific past datetime use get_rates_authenticated with `time`. For a single live rate use get_exchange_rate.",
       inputSchema: {
         source: ccy,
         target: ccy,
@@ -155,7 +155,7 @@ async function main() {
     {
       title: 'Get multi-target or point-in-time rates',
       description:
-        "Use this for (a) one source against multiple targets in a single call ('USD vs EUR, GBP, JPY'), or (b) the rate at a specific past datetime ('EUR/USD at 2025-03-14T12:00Z'), optionally bucketed by hour/day/week/month. Returns { rates: [{ rate, source, target, time }, ...] } — one row per target × time bucket. For a single live pair use get_exchange_rate. For fixed lookback windows (1d/7d/30d/1y ending now) use get_historical_rates.",
+        "Use this for (a) one source against multiple targets in a single call ('USD vs EUR, GBP, JPY'), or (b) the rate at a specific past datetime ('EUR/USD at 2025-03-14T12:00Z'), optionally bucketed by hour/day/week/month. Returns { rates: [{ rate, source, target, time }, ...] } — one row per target × time bucket. Multi-target latest rates work on any key; a past datetime (`time`) needs a paid plan. For a single live pair use get_exchange_rate. For fixed lookback windows (1d/7d/30d/1y ending now) use get_historical_rates.",
       inputSchema: {
         source: ccy,
         target: ccyList,
