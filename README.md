@@ -21,7 +21,7 @@ After installation, your assistant can answer questions like:
 
 ## 🚀 Why this server?
 
-- 📡 **Live mid-market rates** — 150+ ISO 4217 currencies, refreshed every ~60 seconds
+- 📡 **Live mid-market rates** — 160+ ISO 4217 currencies, refreshed every ~60 seconds
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
 - 🧰 **Eight focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`, `get_reference_rate`, `request_trial_key`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host

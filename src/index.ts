@@ -204,7 +204,7 @@ async function main() {
     {
       title: 'List supported currencies',
       description:
-        "Call this BEFORE other tools when you are unsure whether a currency code is supported, or when the user asks 'what currencies do you support?', 'is X a valid currency?', or 'what is the symbol for X?'. Returns { currencies: [{ code: 'USD', name: 'US Dollar', symbol: '$' }, ...], count } covering 150+ ISO 4217 fiat currencies. Does NOT include cryptocurrencies. Cheap to call (cached 24h upstream) — use it to validate user input and prevent downstream errors in get_exchange_rate / get_rates_authenticated / get_historical_rates.",
+        "Call this BEFORE other tools when you are unsure whether a currency code is supported, or when the user asks 'what currencies do you support?', 'is X a valid currency?', or 'what is the symbol for X?'. Returns { currencies: [{ code: 'USD', name: 'US Dollar', symbol: '$' }, ...], count } covering 160+ ISO 4217 fiat currencies. Does NOT include cryptocurrencies. Cheap to call (cached 24h upstream) — use it to validate user input and prevent downstream errors in get_exchange_rate / get_rates_authenticated / get_historical_rates.",
       inputSchema: {},
       outputSchema: {
         currencies: z.array(

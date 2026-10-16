@@ -16,7 +16,7 @@
 
 This guide outlines conventions and best practices for integrating
 **[AllRatesToday](https://allratestoday.com)** — real-time and historical
-foreign-exchange rates for 150+ currencies (mid-market, sourced from tier-one
+foreign-exchange rates for 160+ currencies (mid-market, sourced from tier-one
 financial data providers, refreshed every ~60 seconds) — into applications and AI agents.
 
 It covers the REST API, the official SDKs, and the MCP server (`@allratestoday/mcp-server`).
@@ -112,7 +112,7 @@ Exposed tools:
 | `get_exchange_rate` | Current mid-market rate between two currencies (`source`, `target`) |
 | `get_historical_rates` | Historical data for a pair over `1d` / `7d` / `30d` / `1y` |
 | `get_rates_authenticated` | Multi-target rates with date ranges and grouping (`day`/`week`/`month`) |
-| `list_currencies` | List all 150+ supported currencies |
+| `list_currencies` | List all 160+ supported currencies |
 
 - Restart Cursor after editing `mcp.json`. Verified working with Cursor 0.40+.
 - The server fails fast without `ALLRATES_API_KEY` and prints registration instructions —
