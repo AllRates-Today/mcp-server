@@ -103,7 +103,7 @@ test('keyless metered tools explain how to get a free key, without calling out',
   });
   await assert.rejects(
     () => client.getHistoricalRates('USD', 'EUR', '7d'),
-    /needs an AllRatesToday API key[\s\S]*register/,
+    /needs an AllRatesToday API key on a paid plan[\s\S]*pricing/,
   );
   await assert.rejects(
     () => client.getAuthenticatedRates({ source: 'USD', target: 'EUR' }),
