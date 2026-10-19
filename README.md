@@ -554,19 +554,12 @@ server.json       # MCP registry manifest
 
 ## 📝 Changelog
 
-See [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases) for the full list. Recent highlights:
+Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases).
 
 - **0.7.8** — README: MCP Inspector test guide, example prompts for every tool, hosted `?api_key=` security note, ChatGPT FAQ and 401 row corrected, history consistently paid-plan
 - **0.7.6** — Keyless `get_rates_authenticated` with `time` now says a paid plan is needed; README: free tier no longer listed as covering history, `source` example is `mid-market`
 - **0.7.4** — Keyless `get_exchange_rate` falls back from the ECB table to the central bank that issues the target or source currency (USD/GBP, GBP/JPY, USD/INR now answer keyless), same as the hosted endpoint; response adds `bank`. Dated-table errors say a paid plan is needed. README: real response shapes, tool counts, 300-lifetime free tier
 - **0.7.0** — `get_reference_rate` (Daily Reference Rate, 16:00 London, keyless latest table) and `request_trial_key` (self-issued 100-call trial key adopted for the session)
-- **0.6.1** — README: Claude Code plugin and hosted `/api/mcp` endpoint cross-links; coverage wording refreshed
-- **0.6.0** — Official rates: new keyless `list_central_banks` and `get_official_rates` tools expose the latest table from 121 central banks + 3 tax authorities (dated tables need the key)
-- **0.5.0** — Keyless mode: the server starts and answers without an API key (`get_exchange_rate` via the open ECB reference table, `list_currencies` unchanged); metered tools return actionable sign-up guidance instead of the process exiting
-- **0.4.x** — README overhaul; registry metadata updates
-- **0.3.x** — API key required for all tools; fail-fast at startup with clear error
-- **0.2.x** — Removed news tool, required auth on `get_historical_rates`
-- **0.1.x** — Initial release with 5 tools
 
 ## 🔗 Links
 
