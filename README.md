@@ -556,6 +556,7 @@ server.json       # MCP registry manifest
 
 Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases).
 
+- **0.7.9** — README: changelog trimmed to the 0.7.x line
 - **0.7.8** — README: MCP Inspector test guide, example prompts for every tool, hosted `?api_key=` security note, ChatGPT FAQ and 401 row corrected, history consistently paid-plan
 - **0.7.6** — Keyless `get_rates_authenticated` with `time` now says a paid plan is needed; README: free tier no longer listed as covering history, `source` example is `mid-market`
 - **0.7.4** — Keyless `get_exchange_rate` falls back from the ECB table to the central bank that issues the target or source currency (USD/GBP, GBP/JPY, USD/INR now answer keyless), same as the hosted endpoint; response adds `bank`. Dated-table errors say a paid plan is needed. README: real response shapes, tool counts, 300-lifetime free tier

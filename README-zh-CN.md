@@ -475,6 +475,7 @@ package.json      # npm 元数据、依赖、脚本
 
 近期更新。完整历史见 [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases)。
 
+- **0.7.9** — README：更新日志精简为 0.7.x 版本
 - **0.7.8** — README：新增 MCP Inspector 测试指南、各工具示例提问；修正 ChatGPT 常见问题与 401 说明
 - **0.7.6** — 无密钥调用带 `time` 的 `get_rates_authenticated` 时提示需要付费套餐；免费套餐不再标注包含历史数据
 - **0.7.4** — 无密钥 `get_exchange_rate` 在 ECB 汇率表之外，回退到发行目标或源货币的央行（USD/GBP、GBP/JPY、USD/INR 均可无密钥查询），响应新增 `bank` 字段
