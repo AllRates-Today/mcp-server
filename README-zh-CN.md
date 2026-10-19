@@ -26,7 +26,7 @@
 ## 目录
 
 - [核心能力](#核心能力)
-- [获取 API 密钥（必需）](#获取-api-密钥必需)
+- [获取 API 密钥（免费）](#获取-api-密钥免费)
 - [安装](#安装)
 - [各客户端快速配置](#各客户端快速配置)
   - [Claude Code](#claude-code)
@@ -35,6 +35,7 @@
   - [Windsurf](#windsurf)
   - [通用 stdio MCP 客户端](#通用-stdio-mcp-客户端)
 - [验证是否生效](#验证是否生效)
+- [使用 MCP Inspector 测试](#使用-mcp-inspector-测试)
 - [工具说明](#工具说明)
 - [环境变量](#环境变量)
 - [套餐与限额](#套餐与限额)
@@ -62,7 +63,7 @@
 
 ---
 
-## 获取 API 密钥（必需）
+## 获取 API 密钥（免费）
 
 未设置 `ALLRATES_API_KEY` 时，服务器以**无密钥模式**启动并照常运行（`get_exchange_rate` 返回央行官方汇率），不会退出。免费密钥共 300 次请求（终身额度，不会每月重置）— **无需信用卡**。所有历史与按日期查询的数据（中间价历史、时间点查询、按日期的官方汇率表与参考汇率表）均需要付费套餐；免费密钥与试用密钥会收到 `403 historical_requires_paid_plan`。
 
@@ -202,6 +203,22 @@ npx -y @allratestoday/mcp-server
    > *现在美元对欧元的汇率是多少？*
 
    助手会调用 `get_exchange_rate(source: "USD", target: "EUR")` 并返回真实汇率（例如 *"美元兑欧元当前为 0.9214"*）。如果它给出数字但**没有发起工具调用**，说明服务器并未真正连接。
+
+---
+
+## 使用 MCP Inspector 测试
+
+不经过任何 AI 客户端、单独检查服务器，可用官方 [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector)：
+
+```bash
+npx @modelcontextprotocol/inspector npx -y @allratestoday/mcp-server
+```
+
+1. 打开它输出的网址并点击 **Connect**，**Tools** 标签页应列出 8 个工具。
+2. 调用 `get_exchange_rate`，参数 `source: USD`、`target: EUR`：无需密钥即返回央行官方汇率。
+3. 在 Inspector 的环境变量面板设置 `ALLRATES_API_KEY` 后重新连接再调用：返回实时中间价。
+
+如果这里正常而客户端不正常，问题在客户端配置（`npx` 路径、Node 版本、JSON 语法），而不是服务器。
 
 ---
 
@@ -375,7 +392,7 @@ ALLRATES_API_KEY=art_live_xxxxx npx -y @allratestoday/mcp-server
 |---|---|---|
 | 200 | 成功 | （返回汇率） |
 | 400 | 请求错误 — 通常是货币代码无效 | `Bad request — possibly an unknown currency code` |
-| 401 | API 密钥无效或缺失 | `Invalid AllRatesToday API key` |
+| 401 | API 密钥无效（未设置密钥不会触发此错误，服务器会以无密钥模式运行） | `Invalid AllRatesToday API key` |
 | 429 | 超出配额 | `AllRatesToday API quota exceeded` |
 | 5xx | allratestoday.com 上游故障 | `HTTP 5xx — <上游消息>` |
 
@@ -404,7 +421,7 @@ LLM 会把这些信息直接展示给用户。例如用户问题触发 429 后�
 有，将 `ALLRATES_BASE_URL` 设置为你自己的 AllRatesToday 实例即可。如需自托管授权请联系 support@allratestoday.com。
 
 **能配合 ChatGPT 使用吗？**
-Anthropic 的 MCP 标准适用于任何兼容 MCP 的客户端。ChatGPT Desktop 已有实验性 MCP 支持，请参考 OpenAI 的文档了解最新进展。
+可以，通过托管端点：在 ChatGPT 中将 `https://allratestoday.com/api/mcp` 添加为连接器（自定义 MCP / 远程服务器）。本 npm 包是本地 stdio 服务器，适用于会启动命令的客户端：Claude Code、Cursor、Claude Desktop、Windsurf。
 
 ---
 
