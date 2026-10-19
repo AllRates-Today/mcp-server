@@ -553,6 +553,8 @@ See [GitHub Releases](https://github.com/AllRates-Today/mcp-server/releases) for
 - [MCP protocol docs](https://modelcontextprotocol.io)
 - [GitHub](https://github.com/AllRates-Today/mcp-server) · [Bug reports](https://github.com/AllRates-Today/mcp-server/issues)
 - Support: [support@allratestoday.com](mailto:support@allratestoday.com)
+- [Dashboard](https://allratestoday.com/profile)
+- [Status](https://allratestoday.com/status)
 
 ## 📜 License
 
