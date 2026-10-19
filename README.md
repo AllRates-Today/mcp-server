@@ -33,6 +33,23 @@ After installation, your assistant can answer questions like:
 
 With a key, `get_exchange_rate`, `get_historical_rates` and `get_rates_authenticated` return a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, call **`get_official_rates`**: the latest table published by any of 121 central banks and 3 tax authorities (ECB, Fed, HMRC, US Treasury, Swiss BAZG, …), fixed once published and carrying the institution's own `rate_date`, no key needed. `list_central_banks` gives the codes. Dated official tables (a past `date`) need an API key on a **paid plan** — a free key gets `403 Historical central bank rates require a paid plan`. Mid-market history (`get_historical_rates`, and `time` on `get_rates_authenticated`) is paid-plan too — free and trial keys get `403`. See the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
 
+## 🔑 Get your API key (free)
+
+A key unlocks **real-time mid-market rates across 160+ currencies** and
+multi-target lookups. The free tier (300 requests, lifetime — it does not reset
+monthly) is enough for development and trying it out — **no credit card required**.
+Historical series, point-in-time lookups and dated official and reference-rate
+tables need a paid plan from €4.99/month.
+
+1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
+2. Verify your email
+3. Copy your key from the dashboard (format: `art_live_xxxxx`)
+4. Use it as `ALLRATES_API_KEY` in the configs below
+
+Without one the server prints a short summary of keyless mode (below) on stderr and
+keeps running — it never exits, because an MCP server that exits breaks the
+host client's whole configuration.
+
 ## 🔓 Keyless mode — what works with no setup
 
 Install it with no configuration at all and it starts, connects, and answers:
@@ -50,23 +67,6 @@ Install it with no configuration at all and it starts, connects, and answers:
 
 The keyless path reads the open, edge-cached `/api/open/central-bank/{bank}`
 endpoints — no upstream cost, no rate limit to trip over, nothing to sign up for.
-
-## 🔑 Get your API key (free)
-
-A key unlocks **real-time mid-market rates across 160+ currencies** and
-multi-target lookups. The free tier (300 requests, lifetime — it does not reset
-monthly) is enough for development and trying it out — **no credit card required**.
-Historical series, point-in-time lookups and dated official and reference-rate
-tables need a paid plan from €4.99/month.
-
-1. Register at [allratestoday.com/register](https://allratestoday.com/register) — 30 seconds
-2. Verify your email
-3. Copy your key from the dashboard (format: `art_live_xxxxx`)
-4. Use it as `ALLRATES_API_KEY` in the configs below
-
-Without one the server prints a short summary of keyless mode on stderr and
-keeps running — it never exits, because an MCP server that exits breaks the
-host client's whole configuration.
 
 ## 🧩 Easiest install: the Claude Code plugin
 
