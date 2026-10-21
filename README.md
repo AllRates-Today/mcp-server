@@ -31,7 +31,7 @@ After installation, your assistant can answer questions like:
 
 ## ⚖️ Mid-market vs official central-bank rates
 
-With a key, `get_exchange_rate`, `get_historical_rates` and `get_rates_authenticated` return a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, call **`get_official_rates`**: the latest table published by any of 121 central banks and 3 tax authorities (ECB, Fed, HMRC, US Treasury, Swiss BAZG, …), fixed once published and carrying the institution's own `rate_date`, no key needed. `list_central_banks` gives the codes. Dated official tables (a past `date`) need an API key on a **paid plan** — a free key gets `403 Historical central bank rates require a paid plan`. Mid-market history (`get_historical_rates`, and `time` on `get_rates_authenticated`) is paid-plan too — free and trial keys get `403`. See the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
+With a key, `get_exchange_rate`, `get_historical_rates` and `get_rates_authenticated` return a **mid-market rate**, refreshed every ~60 seconds — the right number for price display, conversion, and anything that should track the market. It is *not* the official rate a tax authority or auditor may require. For those, call **`get_official_rates`**: the latest table published by any of [122 central banks and 4 tax authorities](https://allratestoday.com/central-bank-rates-api/institutions/) (ECB, Fed, HMRC, US Treasury, Swiss BAZG, …), fixed once published and carrying the institution's own `rate_date`, no key needed. `list_central_banks` gives the codes. Dated official tables (a past `date`) need an API key on a **paid plan** — a free key gets `403 Historical central bank rates require a paid plan`. Mid-market history (`get_historical_rates`, and `time` on `get_rates_authenticated`) is paid-plan too — free and trial keys get `403`. See the [central bank REST API](https://allratestoday.com/docs/#central-bank) and [per-bank npm SDKs](https://allratestoday.com/central-bank-rates-api/). The two can diverge by several percent, so pick by use case, not convenience.
 
 ## 🔑 Get your API key (free)
 
@@ -58,7 +58,7 @@ Install it with no configuration at all and it starts, connects, and answers:
 |---|---|---|
 | `get_exchange_rate` | ✅ | An **official central-bank rate**: the ECB reference table first, else the central bank that issues the target or source currency (USD/GBP → Bank of England, USD/INR → Reserve Bank of India). The response carries `bank`, `rate_date`, `derived` and a note saying so, so the assistant never passes it off as a live quote. Only pairs one bank publishes, or their inverses (flagged `derived: true`), work keyless; other crosses are refused with a pointer to the key. |
 | `list_currencies` | ✅ | All 160+ supported ISO 4217 codes. |
-| `list_central_banks` | ✅ | Codes, names and latest publication date of all 121 central banks + 3 tax authorities. |
+| `list_central_banks` | ✅ | Codes, names and latest publication date of all [122 central banks and 4 tax authorities](https://allratestoday.com/central-bank-rates-api/institutions/). |
 | `get_official_rates` | ✅ | Latest **official table** (or one pair) published by any of them. A dated table needs a paid-plan key. |
 | `get_reference_rate` | ✅ | The **Daily Reference Rate**: one never-revised table per business day, fixed at 16:00 London. A past date needs a paid-plan key. |
 | `request_trial_key` | ✅ | Self-issues a 100-call, 7-day key with no account and adopts it for the session. |
@@ -376,7 +376,7 @@ All supported currencies with codes, names, and symbols. Cached upstream for 24 
 
 ### `list_central_banks`
 
-Every official source the server can quote — 121 central banks plus HMRC, the US Treasury and Swiss BAZG — with the `code` that `get_official_rates` takes as `bank`, the institution's name, its latest publication date, `age_days`, its publication `cadence` and a `stale` flag when it is behind its own schedule. Keyless.
+Every official source the server can quote — [122 central banks](https://allratestoday.com/central-bank-rates-api/institutions/) plus HMRC, the US Treasury, Swiss BAZG and India's CBIC — with the `code` that `get_official_rates` takes as `bank`, the institution's name, its latest publication date, `age_days`, its publication `cadence` and a `stale` flag when it is behind its own schedule. Keyless.
 
 **Input** — none.
 
