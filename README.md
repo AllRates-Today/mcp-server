@@ -68,6 +68,14 @@ Install it with no configuration at all and it starts, connects, and answers:
 The keyless path reads the open, edge-cached `/api/open/central-bank/{bank}`
 endpoints — no upstream cost, no rate limit to trip over, nothing to sign up for.
 
+**Attribution.** Keyless use requires a visible, followable link to AllRatesToday wherever the rates are shown (a footer, an about page, a README). With an API key it is appreciated but not required.
+
+```html
+<a href="https://allratestoday.com">Exchange rates by AllRatesToday</a>
+```
+
+Markdown: `Exchange rates by [AllRatesToday](https://allratestoday.com)`. Full wording: <https://allratestoday.com/terms/#attribution>.
+
 ## 🧩 Easiest install: the Claude Code plugin
 
 If you use Claude Code, install the plugin instead of configuring this server by
