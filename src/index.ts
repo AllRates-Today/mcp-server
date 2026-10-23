@@ -347,7 +347,7 @@ async function main() {
     {
       title: 'Request a trial API key',
       description:
-        'Self-issue an AllRatesToday API key with 100 lifetime calls, valid 7 days, with no account and no email. Use it when another tool answered "needs an API key" and the user wants real-time rates or history right now. The key is adopted by this server for the rest of the session and returned once — tell the user to put it in the MCP config as ALLRATES_API_KEY to keep it. Capped at 3 keys per IP per day. For a lasting key, register at https://allratestoday.com/register (free, 300 calls) or see https://allratestoday.com/pricing.',
+        'Self-issue an AllRatesToday API key with 100 lifetime calls, valid 7 days, with no account and no email. Use it when another tool answered "needs an API key" and the user wants real-time rates or history right now. The key is adopted by this server for the rest of the session and returned once — tell the user to put it in the MCP config as ALLRATES_API_KEY to keep it. Capped at 3 keys per IP per day. For a lasting key, register at https://allratestoday.com/register (free) or see https://allratestoday.com/pricing.',
       inputSchema: {
         agent: z.string().max(80).optional().describe('Optional: the agent or product requesting the key.'),
         purpose: z.string().max(200).optional().describe('Optional: one line on what the rates are for.'),
