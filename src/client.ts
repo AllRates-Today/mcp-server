@@ -162,7 +162,7 @@ export class AllRatesTodayClient {
       note:
         'This server now uses the trial key for the rest of this session. To keep it after a restart, ' +
         'put it in the MCP config: "env": { "ALLRATES_API_KEY": "<key>" }. For a lasting key register free ' +
-        'at https://allratestoday.com/register (300 calls) or see https://allratestoday.com/pricing.',
+        'at https://allratestoday.com/register (free) or see https://allratestoday.com/pricing.',
     };
   }
 

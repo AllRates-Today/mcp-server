@@ -36,8 +36,7 @@ With a key, `get_exchange_rate`, `get_historical_rates` and `get_rates_authentic
 ## 🔑 Get your API key (free)
 
 A key unlocks **real-time mid-market rates across 160+ currencies** and
-multi-target lookups. The free tier (300 requests, lifetime — it does not reset
-monthly) is enough for development and trying it out — **no credit card required**.
+multi-target lookups. The free tier is enough for development and trying it out — **no credit card required**.
 Historical series, point-in-time lookups and dated official and reference-rate
 tables need a paid plan from €4.99/month.
 
@@ -469,7 +468,7 @@ Set these in your MCP client's config (in the `env` block) — not in your shell
 
 ## 💳 Plans
 
-A free tier and paid plans are available — see [allratestoday.com/pricing](https://allratestoday.com/pricing) for current quotas. The free tier is 300 requests, lifetime (it never resets), and covers real-time rates and multi-target lookups. All history and dated rates — mid-market history, point-in-time lookups, dated official and reference-rate tables — need a paid plan (free and trial keys get `403 historical_requires_paid_plan`). The Official Rates plan covers official central-bank and tax-authority rates only (no market rates).
+A free tier and paid plans are available — see [allratestoday.com/pricing](https://allratestoday.com/pricing) for current quotas. The free tier covers real-time rates and multi-target lookups. All history and dated rates — mid-market history, point-in-time lookups, dated official and reference-rate tables — need a paid plan (free and trial keys get `403 historical_requires_paid_plan`). The Official Rates plan covers official central-bank and tax-authority rates only (no market rates).
 
 ## 🛠️ Troubleshooting
 
@@ -481,7 +480,7 @@ A free tier and paid plans are available — see [allratestoday.com/pricing](htt
 | `HTTP 403 — Historical rates require a paid plan` | `get_historical_rates`, or `time` on `get_rates_authenticated`, on a free or trial key | Upgrade at /pricing — history is paid-only |
 | `HTTP 403 — Historical central bank rates require a paid plan` | `date` given to `get_official_rates` / `get_reference_rate` on a free key | Omit `date` for the latest table, or upgrade at /pricing |
 | Every call returns "Invalid AllRatesToday API key" | Key is malformed (missing prefix, truncated, or revoked) | Copy a fresh key from the dashboard |
-| Tools return "AllRatesToday API quota exceeded" | Quota used up — the free tier is 300 requests lifetime and never resets; paid plans are monthly | Upgrade at [/pricing](https://allratestoday.com/pricing) |
+| Tools return "AllRatesToday API quota exceeded" | Quota used up — the free tier does not reset; paid plans are monthly | Upgrade at [/pricing](https://allratestoday.com/pricing) |
 | Historical tool returns "Bad request" | Invalid period or unknown currency code | Period must be `1d`/`7d`/`30d`/`1y`; codes must be 3 letters |
 | Server starts but tools never appear | Client didn't reload after config change | Fully quit (not just close) and reopen the client |
 | `npx` runs but hangs forever | The server is waiting for an MCP client to connect — normal when run from a shell | Let your MCP client launch it |
@@ -511,7 +510,7 @@ The server maps API errors to clear, actionable messages the assistant can relay
 ## ❓ FAQ
 
 **Is the free plan really enough for normal use?**
-For trying it out and light dev use. It is 300 requests in total (lifetime, no monthly reset); regular use or production needs a paid tier. Keyless mode costs nothing and has no quota.
+For trying it out and light dev use. It does not reset monthly; regular use or production needs a paid tier. Keyless mode costs nothing and has no quota.
 
 **Do you store my conversation or query data?**
 No. Only your API key and the request parameters (source, target, period, time) are sent to allratestoday.com — never the LLM's conversation context.
@@ -567,7 +566,7 @@ Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Toda
 - **0.7.9** — README: changelog trimmed to the 0.7.x line
 - **0.7.8** — README: MCP Inspector test guide, example prompts for every tool, hosted `?api_key=` security note, ChatGPT FAQ and 401 row corrected, history consistently paid-plan
 - **0.7.6** — Keyless `get_rates_authenticated` with `time` now says a paid plan is needed; README: free tier no longer listed as covering history, `source` example is `mid-market`
-- **0.7.4** — Keyless `get_exchange_rate` falls back from the ECB table to the central bank that issues the target or source currency (USD/GBP, GBP/JPY, USD/INR now answer keyless), same as the hosted endpoint; response adds `bank`. Dated-table errors say a paid plan is needed. README: real response shapes, tool counts, 300-lifetime free tier
+- **0.7.4** — Keyless `get_exchange_rate` falls back from the ECB table to the central bank that issues the target or source currency (USD/GBP, GBP/JPY, USD/INR now answer keyless), same as the hosted endpoint; response adds `bank`. Dated-table errors say a paid plan is needed. README: real response shapes, tool counts, lifetime free tier
 - **0.7.0** — `get_reference_rate` (Daily Reference Rate, 16:00 London, keyless latest table) and `request_trial_key` (self-issued 100-call trial key adopted for the session)
 
 ## 🔗 Links
