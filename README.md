@@ -578,6 +578,7 @@ Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Toda
 - Support: [support@allratestoday.com](mailto:support@allratestoday.com)
 - [Dashboard](https://allratestoday.com/profile)
 - [Status](https://allratestoday.com/status)
+- [Postman collection](https://allratestoday.com/postman/)
 
 ## 📜 License
 
