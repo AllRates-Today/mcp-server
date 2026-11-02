@@ -579,6 +579,7 @@ Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Toda
 - [Dashboard](https://allratestoday.com/profile)
 - [Status](https://allratestoday.com/status)
 - [Postman collection](https://allratestoday.com/postman/)
+- [ChatGPT app](https://chatgpt.com/plugins/plugin_asdk_app_6ae1e76098f48191a285ac3f5ab7a83b) — ask ChatGPT for live and official central bank rates
 
 ## 📜 License
 
