@@ -233,7 +233,7 @@ async function main() {
     {
       title: 'List covered central banks & tax authorities',
       description:
-        "Call this FIRST when you need a bank code, or for 'which central banks do you cover?' / 'do you have rates from X?'. Returns every covered source — 123 central banks plus 5 tax authorities (HMRC, US Treasury, Swiss BAZG) — with `code` (what get_official_rates takes as `bank`), name, latest publication date and whether it is behind schedule. No API key needed.",
+        "Call this FIRST when you need a bank code, or for 'which central banks do you cover?' / 'do you have rates from X?'. Returns every covered source — 123 central banks plus 5 tax authorities (HMRC, US Treasury, Swiss BAZG, India CBIC, Peru SUNAT) — with `code` (what get_official_rates takes as `bank`), name, latest publication date and whether it is behind schedule. No API key needed.",
       inputSchema: {},
       outputSchema: {
         sources: z.array(
