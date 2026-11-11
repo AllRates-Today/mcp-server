@@ -9,6 +9,7 @@ Website: https://allratestoday.com · Hosted endpoint (no install): https://allr
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg)](https://www.typescriptlang.org/)
 
 [![AllRatesToday MCP server](https://mcprush.com/badge/allratestoday-mcp/card.svg)](https://mcprush.com/to/allratestoday-mcp?ref=badge)
+[![AllRatesToday exchange rates (hosted) MCP server](https://mcprush.com/badge/allratestoday-exchange-rates-hosted-mcp/card.svg)](https://mcprush.com/to/allratestoday-exchange-rates-hosted-mcp?ref=badge)
 
 English | [简体中文](./README-zh-CN.md)
 
