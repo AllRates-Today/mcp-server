@@ -8,6 +8,8 @@ Website: https://allratestoday.com · Hosted endpoint (no install): https://allr
 [![MCP](https://img.shields.io/badge/Model%20Context%20Protocol-1.x-blue.svg)](https://modelcontextprotocol.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg)](https://www.typescriptlang.org/)
 
+[![AllRatesToday MCP server](https://mcprush.com/badge/allratestoday-mcp/card.svg)](https://mcprush.com/to/allratestoday-mcp?ref=badge)
+
 English | [简体中文](./README-zh-CN.md)
 
 **Give your AI assistant a live window into the foreign-exchange market. A Model Context Protocol server that lets Claude Code, Cursor, Claude Desktop, Windsurf, and any MCP-compatible client fetch real-time currency rates, historical series, and multi-currency lookups from the [AllRatesToday API](https://allratestoday.com).**
