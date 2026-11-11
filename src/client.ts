@@ -241,7 +241,7 @@ export class AllRatesTodayClient {
     >('/v1/rates', params);
   }
 
-  /** Every covered official source (123 central banks + 5 tax authorities). Keyless. */
+  /** Every covered official source (130+ central banks and tax authorities). Keyless. */
   listCentralBanks() {
     return this.request<{
       sources: { code: string; name: string; latest: string | null; stale?: boolean }[];

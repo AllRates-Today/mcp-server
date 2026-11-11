@@ -59,7 +59,7 @@ async function main() {
         '  Available now, no key needed:',
         '    • get_exchange_rate  — official central-bank rate (ECB, else the issuing bank)',
         '    • list_currencies    — all supported currency codes',
-        '    • list_central_banks — 123 central banks + 5 tax authorities we carry',
+        '    • list_central_banks — 130+ central banks and tax authorities we carry',
         '    • get_official_rates — latest official table (or one pair) from any of them',
         '    • get_reference_rate — Daily Reference Rate, one fixed table per business day (16:00 London)',
         '    • request_trial_key  — self-issue a 100-call, 7-day key without an account',
@@ -233,7 +233,7 @@ async function main() {
     {
       title: 'List covered central banks & tax authorities',
       description:
-        "Call this FIRST when you need a bank code, or for 'which central banks do you cover?' / 'do you have rates from X?'. Returns every covered source — 123 central banks plus 5 tax authorities (HMRC, US Treasury, Swiss BAZG, India CBIC, Peru SUNAT) — with `code` (what get_official_rates takes as `bank`), name, latest publication date and whether it is behind schedule. No API key needed.",
+        "Call this FIRST when you need a bank code, or for 'which central banks do you cover?' / 'do you have rates from X?'. Returns every covered source — 130+ central banks and tax authorities (HMRC, US Treasury, Swiss BAZG, India CBIC, Peru SUNAT) — with `code` (what get_official_rates takes as `bank`), name, latest publication date and whether it is behind schedule. No API key needed.",
       inputSchema: {},
       outputSchema: {
         sources: z.array(
