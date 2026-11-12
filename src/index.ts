@@ -64,8 +64,8 @@ async function main() {
         '    • get_reference_rate — Daily Reference Rate, one fixed table per business day (16:00 London)',
         '    • request_trial_key  — self-issue a 100-call, 7-day key without an account',
         '',
-        '  Needs a free API key (real-time mid-market rates for 160+ currencies and',
-        '  multi-target lookups). Historical series and point-in-time lookups need a paid plan:',
+        '  Needs a free API key (real-time mid-market rates for 160+ currencies,',
+        '  multi-target lookups and commercial bank board rates). Historical series and point-in-time lookups need a paid plan:',
         '    1. https://allratestoday.com/register — free tier, no card, under a minute',
         '    2. Add to this server\'s MCP config:  "env": { "ALLRATES_API_KEY": "art_live_..." }',
         '',
@@ -336,6 +336,45 @@ async function main() {
     async ({ source, target, date }) => {
       try {
         return ok(await client.getReferenceRate({ source, target, date }));
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'get_bank_rates',
+    {
+      title: 'Commercial bank buy/sell board rates',
+      description:
+        "Retail buy and sell rates a commercial bank displays on its own website (e.g. SBI's TT buying rate, an Emirates NBD or HSBC Hong Kong board), read hourly. Use for 'what rate does bank X give for USD today?', remittance comparisons between banks in one country, or rules that name a bank's card rate (India Income-tax Rule 115 uses SBI's TT buying rate). These are bank prices, NOT official or mid-market rates: for those use get_official_rates or get_exchange_rate. Give `country` alone for every covered bank there, or add `bank` for one board; `ccy` narrows one bank to a currency and `date` returns the stored board for a past day. Covers 36 banks in 12 countries (ae, lk, in, vn, id, am, tw, jp, kr, hk, cn, az); codes are listed at https://allratestoday.com/bank-exchange-rate-api/. Requires ALLRATES_API_KEY (the free key works).",
+      inputSchema: {
+        country: z.string().regex(/^[A-Za-z]{2}$/, 'two-letter country code').describe("Two-letter country code, e.g. 'in', 'ae', 'hk'."),
+        bank: z.string().regex(/^[A-Za-z0-9_-]{2,20}$/).optional().describe("Bank code within the country, e.g. 'sbi', 'fab', 'hsbchk'. Omit for every covered bank."),
+        ccy: z.string().regex(/^[A-Za-z]{3}$/).optional().describe("Narrow one bank's board to a single currency, e.g. 'USD'. Needs `bank`."),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Stored board for a past day, YYYY-MM-DD (kept about 400 days). Needs `bank`.'),
+      },
+      outputSchema: {
+        country: z.string(),
+        quote_ccy: z.string().describe('Home currency every rate is quoted in'),
+        banks: z.array(z.object({ bank: z.string(), name: z.string() }).passthrough()).optional().describe('Every covered bank (country call)'),
+        bank: z.string().optional(),
+        name: z.string().optional(),
+        bank_updated_at: z.string().nullable().optional().describe("The bank's own last-updated stamp"),
+        basis: z.string().nullable().optional().describe('Which board this is, e.g. Telegraphic transfer'),
+        captured_at: z.string().optional(),
+        rates: z.array(z.object({ ccy: z.string(), buy: z.number(), sell: z.number() }).passthrough()).optional().describe('One bank: its board'),
+        ccy: z.string().optional(),
+        buy: z.number().optional().describe('One currency: what the bank pays per unit'),
+        sell: z.number().optional().describe('One currency: what the bank charges per unit'),
+        snapshot_date: z.string().optional(),
+        disclaimer: z.string().optional(),
+      },
+      annotations: READ_ONLY,
+    },
+    async ({ country, bank, ccy, date }) => {
+      try {
+        return ok(await client.getBankRates({ country, bank, ccy, date }));
       } catch (err) {
         return fail(err);
       }

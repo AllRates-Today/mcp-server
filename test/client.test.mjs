@@ -247,3 +247,24 @@ test('keyless dated official/reference tables say a paid plan is needed', async 
   await assert.rejects(() => client.getOfficialRates('ecb', { date: '2026-09-01' }), /paid plan/);
   await assert.rejects(() => client.getReferenceRate({ date: '2026-09-01' }), /paid plan/);
 });
+
+test('getBankRates calls the keyed bank-rates path with uppercased ccy', async () => {
+  const capture = {};
+  const client = new AllRatesTodayClient({ apiKey: 'k', fetchImpl: stubFetch(200, { bank: 'sbi', buy: 93.5 }, capture) });
+  const res = await client.getBankRates({ country: 'IN', bank: 'SBI', ccy: 'usd', date: '2026-10-15' });
+  assert.equal(res.buy, 93.5);
+  const url = new URL(capture.url);
+  assert.equal(url.pathname, '/api/v1/bank-rates/in/sbi');
+  assert.equal(url.searchParams.get('ccy'), 'USD');
+  assert.equal(url.searchParams.get('date'), '2026-10-15');
+});
+
+test('getBankRates without a key points at registration', async () => {
+  const client = new AllRatesTodayClient({ fetchImpl: stubFetch(200, {}) });
+  await assert.rejects(() => client.getBankRates({ country: 'in' }), /needs an AllRatesToday API key/);
+});
+
+test('getBankRates rejects ccy without a bank', async () => {
+  const client = new AllRatesTodayClient({ apiKey: 'k', fetchImpl: stubFetch(200, {}) });
+  await assert.rejects(() => client.getBankRates({ country: 'in', ccy: 'USD' }), /need a bank/);
+});

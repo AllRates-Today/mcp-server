@@ -129,6 +129,25 @@ export class AllRatesTodayClient {
   }
 
   /**
+   * Retail buy/sell board rates commercial banks display on their own
+   * websites, read hourly: every covered bank in a country, or one bank
+   * (optionally one currency, optionally a stored past day). Behind the API
+   * key on every plan, the free and trial keys included.
+   */
+  getBankRates(params: { country: string; bank?: string; ccy?: string; date?: string }) {
+    if (this.keyless) return Promise.reject(new NeedsKeyError('Commercial bank board rates'));
+    const country = params.country.trim().toLowerCase();
+    const bank = params.bank?.trim().toLowerCase();
+    if (!bank && (params.ccy || params.date)) {
+      return Promise.reject(new AllRatesTodayError('ccy and date need a bank.'));
+    }
+    return this.request<Record<string, unknown>>(
+      `/v1/bank-rates/${encodeURIComponent(country)}${bank ? `/${encodeURIComponent(bank)}` : ''}`,
+      { ccy: params.ccy?.toUpperCase(), date: params.date },
+    );
+  }
+
+  /**
    * Self-issue a trial key (100 calls, 7 days, no account) and adopt it for the
    * rest of this process. POST with a JSON body: the site rejects bodiless
    * POSTs as cross-site form submissions.

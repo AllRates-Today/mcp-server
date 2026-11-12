@@ -26,7 +26,7 @@ After installation, your assistant can answer questions like:
 
 - 📡 **Live mid-market rates** — 160+ ISO 4217 currencies, refreshed every ~60 seconds
 - 📈 **Historical series built in** — `1d` / `7d` / `30d` / `1y` windows with sensible granularity per period
-- 🧰 **Eight focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`, `get_reference_rate`, `request_trial_key`; small surface, easy for the model to use correctly
+- 🧰 **Nine focused tools** — `get_exchange_rate`, `get_historical_rates`, `get_rates_authenticated`, `list_currencies`, `list_central_banks`, `get_official_rates`, `get_reference_rate`, `get_bank_rates`, `request_trial_key`; small surface, easy for the model to use correctly
 - 🔌 **Works everywhere MCP does** — stdio transport, MCP 1.x; Claude Code, Cursor, Claude Desktop, Windsurf, or any generic host
 - 🔓 **Works with no API key** — installs and answers out of the box from open official central-bank tables (ECB first, else the bank that issues one of the two currencies); a free key unlocks real-time rates for 160+ currencies
 - 🛡️ **Honest about what it returned** — every keyless answer says which rate it is and when it was published; API errors map to clear, actionable messages
@@ -94,7 +94,7 @@ Everything below still applies for other MCP clients.
 
 ## ☁️ Hosted endpoint — nothing to install
 
-The same tools also run as a hosted **Streamable HTTP** MCP server, which lists **11 tools**: the 8 of this stdio package plus `get_official_rate_history`, `compare_official_rates` and `get_publication_calendar` from the sibling central-bank server. Paste the URL into any client that supports remote MCP — Claude.ai and Claude Desktop connectors, ChatGPT, Cursor, VS Code, Codex, Gemini CLI:
+The same tools also run as a hosted **Streamable HTTP** MCP server, which lists **11 tools**: 8 of this stdio package's 9 (all except `get_bank_rates`) plus `get_official_rate_history`, `compare_official_rates` and `get_publication_calendar` from the sibling central-bank server. Paste the URL into any client that supports remote MCP — Claude.ai and Claude Desktop connectors, ChatGPT, Cursor, VS Code, Codex, Gemini CLI:
 
 ```
 https://allratestoday.com/api/mcp
@@ -155,7 +155,7 @@ Edit `~/.cursor/mcp.json` (or `.cursor/mcp.json` inside your project for project
 }
 ```
 
-Restart Cursor. The eight tools should appear in the MCP tool picker.
+Restart Cursor. The nine tools should appear in the MCP tool picker.
 
 ### Claude Desktop
 
@@ -202,7 +202,7 @@ npx -y @allratestoday/mcp-server
 After configuring your client, test in this order:
 
 1. **Server starts** — open the client. The server starts with or without a key (no key ⇒ keyless mode), so a red dot or "failed to connect" means the client could not launch it — usually `npx` or Node ≥18 (see Troubleshooting below). A wrong key does not stop it starting; calls then return `Invalid AllRatesToday API key`.
-2. **Tools are listed** — most clients have a "tools" or "MCP" panel showing the eight tools.
+2. **Tools are listed** — most clients have a "tools" or "MCP" panel showing the nine tools.
 3. **A live call returns a number** — ask: *"What's the current USD to EUR rate?"* The assistant should call `get_exchange_rate(source: "USD", target: "EUR")` and reply with a real rate. If it fabricates a number without a tool call, the server isn't connected.
 
 More prompts that exercise the other tools:
@@ -220,7 +220,7 @@ To check the server on its own, without any AI client in the way, run it under t
 npx @modelcontextprotocol/inspector npx -y @allratestoday/mcp-server
 ```
 
-1. Open the URL it prints and click **Connect**. The **Tools** tab should list the eight tools.
+1. Open the URL it prints and click **Connect**. The **Tools** tab should list the nine tools.
 2. Call `get_exchange_rate` with `source: USD`, `target: EUR` — it answers keyless with an official rate.
 3. Set `ALLRATES_API_KEY` in the Inspector's environment panel, reconnect, and call it again — now it returns the live mid-market rate.
 
@@ -237,7 +237,7 @@ If this works but your client doesn't, the problem is the client's config (path 
 - [`get_reference_rate`](#get_reference_rate) — the Daily Reference Rate, one fixed mid-market table per business day (16:00 London)
 - [`request_trial_key`](#request_trial_key) — self-issue a 100-call, 7-day trial key, no account needed
 
-`get_historical_rates` and `get_rates_authenticated` require `ALLRATES_API_KEY`; the other six of the eight work keyless. History (`get_historical_rates`, and `time` on `get_rates_authenticated`) needs a paid plan.
+`get_historical_rates`, `get_rates_authenticated` and `get_bank_rates` require `ALLRATES_API_KEY`; the other six of the nine work keyless. History (`get_historical_rates`, and `time` on `get_rates_authenticated`) needs a paid plan.
 
 ---
 
@@ -446,6 +446,23 @@ AllRatesToday's **Daily Reference Rate**: the per-currency median of samples tak
 | `date` | string | no | Past business day `YYYY-MM-DD` (API key on a paid plan). Omit for the latest table |
 
 **Output** — `{ rate_date, base, time, rates }` for the table, or `{ rate_date, source, target, rate, derived }` for a pair, plus `method` and `disclaimer`. Keyless for the latest table. Docs: https://allratestoday.com/reference-rate/
+
+---
+
+### `get_bank_rates`
+
+Retail **buy and sell** board rates that commercial banks display on their own websites, read hourly: SBI's TT buying rate, an Emirates NBD or HSBC Hong Kong board. 36 banks in 12 countries. These are bank prices, not official or mid-market rates. Requires `ALLRATES_API_KEY` (the free key works).
+
+**Input**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `country` | string | yes | Two-letter country code: `ae`, `lk`, `in`, `vn`, `id`, `am`, `tw`, `jp`, `kr`, `hk`, `cn`, `az` |
+| `bank` | string | no | Bank code within the country, e.g. `sbi`. Omit for every covered bank |
+| `ccy` | string | no | One currency of that bank's board, e.g. `USD` (needs `bank`) |
+| `date` | string | no | Stored board for a past day `YYYY-MM-DD`, kept about 400 days (needs `bank`) |
+
+**Output** — `{ country, quote_ccy, banks: [{ bank, name, bank_updated_at, basis, captured_at, rates }] }` for a country; one bank returns its `rates` (`ccy`, `buy`, `sell`, `mid`, `spread_pct`, `official`); with `ccy`, that row's fields at the top level. Every response carries a `disclaimer`. Bank codes: https://allratestoday.com/bank-exchange-rate-api/
 
 ---
 

@@ -7,7 +7,7 @@
 
 [English](./README.md) | 简体中文
 
-> **注意：** 本中文文档部分内容仍停留在早期版本。当前版本（0.7.x）提供 8 个工具（托管端点 https://allratestoday.com/api/mcp 提供 11 个），**无需 API 密钥即可启动**（无密钥模式），完整且最新的说明请以 [英文 README](./README.md) 为准。
+> **注意：** 本中文文档部分内容仍停留在早期版本。当前版本（0.7.x）提供 9 个工具（托管端点 https://allratestoday.com/api/mcp 提供 11 个），**无需 API 密钥即可启动**（无密钥模式），完整且最新的说明请以 [英文 README](./README.md) 为准。
 
 > 让你的 AI 编程助手获得通往外汇市场的实时窗口。
 
@@ -214,7 +214,7 @@ npx -y @allratestoday/mcp-server
 npx @modelcontextprotocol/inspector npx -y @allratestoday/mcp-server
 ```
 
-1. 打开它输出的网址并点击 **Connect**，**Tools** 标签页应列出 8 个工具。
+1. 打开它输出的网址并点击 **Connect**，**Tools** 标签页应列出 9 个工具。
 2. 调用 `get_exchange_rate`，参数 `source: USD`、`target: EUR`：无需密钥即返回央行官方汇率。
 3. 在 Inspector 的环境变量面板设置 `ALLRATES_API_KEY` 后重新连接再调用：返回实时中间价。
 
@@ -224,7 +224,7 @@ npx @modelcontextprotocol/inspector npx -y @allratestoday/mcp-server
 
 ## 工具说明
 
-以下仅列出 4 个核心工具（完整的 8 个工具见[英文 README](./README.md#-tools-reference)）。`get_historical_rates` 与 `get_rates_authenticated` 需要 `ALLRATES_API_KEY`：`get_rates_authenticated` 的最新汇率免费密钥即可，`get_historical_rates` 及带 `time` 的查询需要付费套餐；`get_exchange_rate` 与 `list_currencies` 无密钥也可使用。
+以下仅列出 4 个核心工具（完整的 9 个工具见[英文 README](./README.md#-tools-reference)）。`get_historical_rates` 与 `get_rates_authenticated` 需要 `ALLRATES_API_KEY`：`get_rates_authenticated` 的最新汇率免费密钥即可，`get_historical_rates` 及带 `time` 的查询需要付费套餐；`get_exchange_rate` 与 `list_currencies` 无密钥也可使用。
 
 ### `get_exchange_rate`
 
