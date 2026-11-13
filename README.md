@@ -451,7 +451,7 @@ AllRatesToday's **Daily Reference Rate**: the per-currency median of samples tak
 
 ### `get_bank_rates`
 
-Retail **buy and sell** board rates that commercial banks display on their own websites, read hourly: SBI's TT buying rate, an Emirates NBD or HSBC Hong Kong board. 36 banks in 12 countries. These are bank prices, not official or mid-market rates. Requires `ALLRATES_API_KEY` (the free key works).
+Retail **buy and sell** board rates that commercial banks display on their own websites, read hourly: SBI's TT buying rate, an Emirates NBD or HSBC Hong Kong board. 73 banks in 27 countries. These are bank prices, not official or mid-market rates. Requires `ALLRATES_API_KEY` (the free key works).
 
 **Input**
 
