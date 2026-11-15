@@ -593,6 +593,7 @@ Recent changes. Full history: [GitHub Releases](https://github.com/AllRates-Toda
 - [API documentation](https://allratestoday.com/docs/) · [Interactive reference](https://allratestoday.com/api-reference/)
 - [Register (free)](https://allratestoday.com/register) · [Pricing](https://allratestoday.com/pricing)
 - [MCP protocol docs](https://modelcontextprotocol.io)
+- [Bank Exchange Rate API](https://allratestoday.com/bank-exchange-rate-api/) — live buy and sell rates from 1,200+ commercial banks in 120+ countries · [npm](https://www.npmjs.com/package/bank-exchange-rates) · [GitHub](https://github.com/AllRates-Today/bank-exchange-rates)
 - [GitHub](https://github.com/AllRates-Today/mcp-server) · [Bug reports](https://github.com/AllRates-Today/mcp-server/issues)
 - Support: [support@allratestoday.com](mailto:support@allratestoday.com)
 - [Dashboard](https://allratestoday.com/profile)
