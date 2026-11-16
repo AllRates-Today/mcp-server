@@ -173,10 +173,20 @@ export class AllRatesTodayClient {
       const upstream = body && typeof body === 'object' && typeof body.error === 'string' ? body.error : undefined;
       throw new AllRatesTodayError(upstream ?? `HTTP ${res.status}`, res.status, body);
     }
-    const key = body && typeof body === 'object' && typeof body.key === 'string' ? body.key : undefined;
+    // POST /api/agent/keys answers { api_key, calls_included, expires_at }; `key` kept for older responses.
+    const key =
+      body && typeof body === 'object'
+        ? typeof body.api_key === 'string'
+          ? body.api_key
+          : typeof body.key === 'string'
+            ? body.key
+            : undefined
+        : undefined;
     if (key) this.setApiKey(key);
     return {
       ...(body ?? {}),
+      key,
+      calls: body?.calls ?? body?.calls_included,
       adopted: Boolean(key),
       note:
         'This server now uses the trial key for the rest of this session. To keep it after a restart, ' +

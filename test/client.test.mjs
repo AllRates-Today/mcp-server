@@ -268,3 +268,14 @@ test('getBankRates rejects ccy without a bank', async () => {
   const client = new AllRatesTodayClient({ apiKey: 'k', fetchImpl: stubFetch(200, {}) });
   await assert.rejects(() => client.getBankRates({ country: 'in', ccy: 'USD' }), /need a bank/);
 });
+
+test('requestTrialKey adopts api_key, the field the live endpoint returns', async () => {
+  const client = new AllRatesTodayClient({
+    fetchImpl: stubFetch(200, { api_key: 'art_live_real', calls_included: 100, expires_at: '2026-11-22T00:00:00Z' }),
+  });
+  const res = await client.requestTrialKey({});
+  assert.equal(res.adopted, true);
+  assert.equal(res.key, 'art_live_real');
+  assert.equal(res.calls, 100);
+  assert.equal(client.keyless, false);
+});
